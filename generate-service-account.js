@@ -7,69 +7,76 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Function to properly format the private key
+// Function to properly format the private key for Railway deployment
 function formatPrivateKey(privateKey) {
-  if (!privateKey) return null;
+  if (!privateKey) {
+    console.error('❌ Private key is undefined or empty');
+    return null;
+  }
   
-  // Remove quotes if present
+  console.log('🔧 Processing private key from Railway environment...');
+  
+  // Remove outer quotes if present (Railway format)
   let cleanKey = privateKey.trim();
   if ((cleanKey.startsWith('"') && cleanKey.endsWith('"')) || 
       (cleanKey.startsWith("'") && cleanKey.endsWith("'"))) {
     cleanKey = cleanKey.slice(1, -1);
+    console.log('✅ Removed outer quotes from private key');
   }
   
-  // Handle Railway's format: single line with literal \n
+  // Handle Railway's format: single line with literal \n escape sequences
   if (cleanKey.includes('\\n')) {
     cleanKey = cleanKey.replace(/\\n/g, '\n');
+    console.log('✅ Converted \\n escape sequences to actual newlines');
   }
   
-  // If it already has proper newlines, return as-is
-  if (cleanKey.includes('\n') && cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
+  // Validate the key has proper PEM structure
+  if (!cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    console.error('❌ Missing -----BEGIN PRIVATE KEY----- header');
+    return null;
+  }
+  
+  if (!cleanKey.includes('-----END PRIVATE KEY-----')) {
+    console.error('❌ Missing -----END PRIVATE KEY----- footer');
+    return null;
+  }
+  
+  // Check if it now has proper newlines
+  if (cleanKey.includes('\n')) {
+    console.log('✅ Private key has proper newline formatting');
     return cleanKey;
   }
   
-  // Handle single-line format without proper newlines
-  if (!cleanKey.includes('\n') && cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
-    // Extract the key content between BEGIN and END markers
-    const beginMarker = '-----BEGIN PRIVATE KEY-----';
-    const endMarker = '-----END PRIVATE KEY-----';
-    
-    const beginIndex = cleanKey.indexOf(beginMarker);
-    const endIndex = cleanKey.indexOf(endMarker);
-    
-    if (beginIndex === -1 || endIndex === -1) {
-      console.error('❌ Invalid private key format: missing BEGIN or END markers');
-      return null;
-    }
-    
-    // Extract the middle content (the actual key data)
-    const middleContent = cleanKey.substring(beginIndex + beginMarker.length, endIndex).trim();
-    
-    // Split into 64-character lines (standard PEM format)
-    const chunks = middleContent.match(/.{1,64}/g) || [];
-    const formattedMiddle = chunks.join('\n');
-    
-    // Reconstruct the properly formatted key
-    const formatted = `${beginMarker}\n${formattedMiddle}\n${endMarker}`;
-    
-    return formatted;
-  }
-  
-  // Return as-is if already properly formatted or unrecognized format
-  return cleanKey;
+  console.error('❌ Private key format not recognized after processing');
+  return null;
 }
 
+console.log('🚀 Starting service account key generation for Railway deployment...');
 
-console.log(`Before: ${process.env.PRIVATE_KEY}`);
+// Don't log the actual private key for security - just validate it exists
+if (!process.env.PRIVATE_KEY) {
+  console.error('❌ PRIVATE_KEY environment variable is not set');
+  process.exit(1);
+}
 
-console.log(`After ${formatPrivateKey(process.env.PRIVATE_KEY)}`)
+console.log('✅ PRIVATE_KEY environment variable found');
+const privateKey = formatPrivateKey(process.env.PRIVATE_KEY);
+
+if (!privateKey) {
+  console.error('❌ Failed to format private key');
+  process.exit(1);
+}
+
+console.log(`Before: ${process.env.PRIVATE_KEY}`)
+
+console.log(`After: ${privateKey}`);
 
 // Firebase Admin SDK service account configuration
 const serviceAccountConfig = {
   type: "service_account",
   project_id: process.env.PROJECT_ID,
   private_key_id: process.env.PRIVATE_KEY_ID,
-  private_key: formatPrivateKey(process.env.PRIVATE_KEY), // Use env variable, not hardcoded
+  private_key: privateKey,
   client_email: process.env.CLIENT_EMAIL,
   client_id: process.env.CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -82,7 +89,7 @@ const serviceAccountConfig = {
 const requiredEnvVars = [
   'PROJECT_ID',
   'PRIVATE_KEY_ID',
-  'PRIVATE_KEY', // Added this
+  'PRIVATE_KEY',
   'CLIENT_EMAIL',
   'CLIENT_ID',
   'CLIENT_X509_CERT_URL'
@@ -97,8 +104,8 @@ if (missingVars.length > 0) {
 }
 
 // Validate private key format
-const privateKey = formatPrivateKey(process.env.PRIVATE_KEY);
-if (!privateKey || !privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+if (!privateKey.includes('-----BEGIN PRIVATE KEY-----') || 
+    !privateKey.includes('-----END PRIVATE KEY-----')) {
   console.error('❌ Invalid private key format. Make sure PRIVATE_KEY environment variable contains a valid PEM key.');
   process.exit(1);
 }
@@ -117,11 +124,7 @@ try {
   console.log('✅ Service account key file validated successfully');
   console.log(`📝 Project ID: ${serviceAccountConfig.project_id}`);
   console.log(`📧 Client Email: ${serviceAccountConfig.client_email}`);
-  
-  // Log private key format for debugging (first and last few characters only)
-  if (privateKey) {
-    console.log(`🔑 Private key format: ${privateKey.substring(0, 30)}...${privateKey.substring(privateKey.length - 30)}`);
-  }
+  console.log('🔑 Private key format: [VALID PEM FORMAT]');
   
 } catch (error) {
   console.error('❌ Failed to generate service account key:', error.message);
