@@ -48,25 +48,25 @@ function formatPrivateKey(privateKey) {
 // Firebase Admin SDK service account configuration
 const serviceAccountConfig = {
   type: "service_account",
-  project_id: process.env.FIREBASE_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY), // Fix newline formatting
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_CLIENT_ID,
+  project_id: process.env.PROJECT_ID,
+  private_key_id: process.env.PRIVATE_KEY_ID,
+  private_key: formatPrivateKey(process.env.PRIVATE_KEY), // Fix newline formatting
+  client_email: process.env.CLIENT_EMAIL,
+  client_id: process.env.CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL
+  client_x509_cert_url: process.env.CLIENT_CERT_URL
 };
 
 // Validate required environment variables
 const requiredEnvVars = [
-  'FIREBASE_PROJECT_ID',
-  'FIREBASE_PRIVATE_KEY_ID',
-  'FIREBASE_PRIVATE_KEY',
-  'FIREBASE_CLIENT_EMAIL',
-  'FIREBASE_CLIENT_ID',
-  'FIREBASE_CLIENT_CERT_URL'
+  'PROJECT_ID',
+  'PRIVATE_KEY_ID',
+  'PRIVATE_KEY',
+  'CLIENT_EMAIL',
+  'CLIENT_ID',
+  'CLIENT_CERT_URL'
 ];
 
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -78,10 +78,10 @@ if (missingVars.length > 0) {
 }
 
 // Validate private key format
-const formattedKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
+const formattedKey = formatPrivateKey(process.env.PRIVATE_KEY);
 if (!formattedKey || !formattedKey.includes('-----BEGIN PRIVATE KEY-----')) {
   console.error('❌ Invalid private key format. Make sure it includes the BEGIN/END markers.');
-  console.error('Current private key preview:', process.env.FIREBASE_PRIVATE_KEY?.substring(0, 50) + '...');
+  console.error('Current private key preview:', process.env.PRIVATE_KEY?.substring(0, 50) + '...');
   process.exit(1);
 }
 
