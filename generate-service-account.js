@@ -22,13 +22,12 @@ function formatPrivateKey(privateKey) {
       (cleanKey.startsWith("'") && cleanKey.endsWith("'"))) {
     cleanKey = cleanKey.slice(1, -1);
     console.log('✅ Removed outer quotes from private key');
+  } else {
+    console.log('ℹ️ No outer quotes found to remove');
   }
   
-  // Handle Railway's format: single line with literal \n escape sequences
-  if (cleanKey.includes('\\n')) {
-    cleanKey = cleanKey.replace(/\\n/g, '\n');
-    console.log('✅ Converted \\n escape sequences to actual newlines');
-  }
+  // Railway stores the key with actual newlines, not \n escape sequences
+  // So we don't need to convert anything, just validate
   
   // Validate the key has proper PEM structure
   if (!cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
@@ -41,14 +40,14 @@ function formatPrivateKey(privateKey) {
     return null;
   }
   
-  // Check if it now has proper newlines
+  // Check if it has proper newlines (Railway should already have these)
   if (cleanKey.includes('\n')) {
     console.log('✅ Private key has proper newline formatting');
     return cleanKey;
+  } else {
+    console.log('⚠️ Private key appears to be on a single line, this might cause issues');
+    return cleanKey;
   }
-  
-  console.error('❌ Private key format not recognized after processing');
-  return null;
 }
 
 console.log('🚀 Starting service account key generation for Railway deployment...');
@@ -66,10 +65,6 @@ if (!privateKey) {
   console.error('❌ Failed to format private key');
   process.exit(1);
 }
-
-console.log(`Before: ${process.env.PRIVATE_KEY}`)
-
-console.log(`After: ${privateKey}`);
 
 // Firebase Admin SDK service account configuration
 const serviceAccountConfig = {
