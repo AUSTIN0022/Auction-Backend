@@ -7,28 +7,66 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Function to properly format the private key
+function formatPrivateKey(privateKey) {
+  if (!privateKey) return null;
+  
+  // Handle Railway's format: single line with literal \n
+  if (privateKey.includes('\\n')) {
+    return privateKey.replace(/\\n/g, '\n');
+  }
+  
+  // Handle single-line format without \n separators
+  if (!privateKey.includes('\n') && privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    // Split the key into proper lines
+    let formatted = privateKey;
+    
+    // Add newline after BEGIN marker
+    formatted = formatted.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n');
+    
+    // Add newline before END marker
+    formatted = formatted.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+    
+    // Split the middle content into 64-character lines
+    const beginIndex = formatted.indexOf('\n') + 1;
+    const endIndex = formatted.lastIndexOf('\n');
+    const middleContent = formatted.substring(beginIndex, endIndex);
+    
+    // Split into 64-character chunks
+    const chunks = middleContent.match(/.{1,64}/g) || [];
+    const formattedMiddle = chunks.join('\n');
+    
+    formatted = '-----BEGIN PRIVATE KEY-----\n' + formattedMiddle + '\n-----END PRIVATE KEY-----';
+    
+    return formatted;
+  }
+  
+  // Return as-is if already properly formatted
+  return privateKey;
+}
+
 // Firebase Admin SDK service account configuration
 const serviceAccountConfig = {
   type: "service_account",
-  project_id: process.env.PROJECT_ID,
-  private_key_id: process.env.PRIVATE_KEY_ID,
-  private_key: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'), // Fix newline formatting
-  client_email: process.env.CLIENT_EMAIL,
-  client_id: process.env.CLIENT_ID,
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  private_key: formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY), // Fix newline formatting
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: process.env.FIREBASE_CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: process.env.CLIENT_CERT_URL
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL
 };
 
 // Validate required environment variables
 const requiredEnvVars = [
-  'PROJECT_ID',
-  'PRIVATE_KEY_ID',
-  'PRIVATE_KEY',
-  'CLIENT_EMAIL',
-  'CLIENT_ID',
-  'CLIENT_CERT_URL'
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_PRIVATE_KEY_ID',
+  'FIREBASE_PRIVATE_KEY',
+  'FIREBASE_CLIENT_EMAIL',
+  'FIREBASE_CLIENT_ID',
+  'FIREBASE_CLIENT_CERT_URL'
 ];
 
 const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -40,8 +78,10 @@ if (missingVars.length > 0) {
 }
 
 // Validate private key format
-if (!serviceAccountConfig.private_key.includes('-----BEGIN PRIVATE KEY-----')) {
+const formattedKey = formatPrivateKey(process.env.FIREBASE_PRIVATE_KEY);
+if (!formattedKey || !formattedKey.includes('-----BEGIN PRIVATE KEY-----')) {
   console.error('❌ Invalid private key format. Make sure it includes the BEGIN/END markers.');
+  console.error('Current private key preview:', process.env.FIREBASE_PRIVATE_KEY?.substring(0, 50) + '...');
   process.exit(1);
 }
 
