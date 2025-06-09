@@ -1,0 +1,285 @@
+/**
+ * Notification System Styles
+ * 
+ * This stylesheet provides customizable toast notifications with:
+ * - Multiple position options
+ * - Type-based styling
+ * - Smooth animations
+ * - Responsive design
+ */
+
+/* Toast container positioning */
+.notification-container {
+    position: fixed;
+    z-index: 9999;
+    max-width: 350px;
+    width: 100%;
+    pointer-events: none; /* Let clicks pass through container but not toasts */
+  }
+  
+  /* Position variations */
+  .notification-container.top-right {
+    top: 20px;
+    right: 20px;
+  }
+  
+  .notification-container.top-left {
+    top: 20px;
+    left: 20px;
+  }
+  
+  .notification-container.bottom-right {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .notification-container.bottom-left {
+    bottom: 20px;
+    left: 20px;
+  }
+  
+  .notification-container.top-center {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .notification-container.bottom-center {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* Toast styling */
+  .notification-toast {
+    background: white;
+    color: #333;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    pointer-events: auto; /* Make toasts clickable */
+    overflow: hidden;
+    position: relative;
+    
+    /* Default animation for all positions */
+    opacity: 0;
+    transition: all 0.3s ease-out;
+  }
+  
+  /* Position-specific transforms for entry/exit animations */
+  .notification-container.top-right .notification-toast {
+    transform: translateX(100%);
+  }
+  
+  .notification-container.top-left .notification-toast {
+    transform: translateX(-100%);
+  }
+  
+  .notification-container.bottom-right .notification-toast {
+    transform: translateX(100%);
+  }
+  
+  .notification-container.bottom-left .notification-toast {
+    transform: translateX(-100%);
+  }
+  
+  .notification-container.top-center .notification-toast {
+    transform: translateY(-100%);
+  }
+  
+  .notification-container.bottom-center .notification-toast {
+    transform: translateY(100%);
+  }
+  
+  /* Visible state */
+  .notification-toast.visible {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+  
+  /* Header styling */
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .notification-title {
+    font-weight: bold;
+    font-size: 16px;
+    padding-right: 20px;
+  }
+  
+  .notification-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .notification-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+  }
+  
+  .notification-body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  /* Progress bar for auto-close timing */
+  .notification-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: progress 5s linear forwards; /* Adjust time to match your duration */
+  }
+  
+  @keyframes progress {
+    to { transform: scaleX(1); }
+  }
+  
+  /* Notification types with customizable colors */
+  .notification-toast.default {
+    border-left: 4px solid #607D8B;
+  }
+  
+  .notification-toast.competition_created {
+    border-left: 4px solid #4CAF50;
+  }
+  
+  .notification-toast.user_registered {
+    border-left: 4px solid #2196F3;
+  }
+  
+  .notification-toast.announcement {
+    border-left: 4px solid #FFC107;
+  }
+  
+  .notification-toast.reminder {
+    border-left: 4px solid #FF9800;
+  }
+  
+  .notification-toast.error {
+    border-left: 4px solid #F44336;
+  }
+  
+  .notification-toast.success {
+    border-left: 4px solid #4CAF50;
+  }
+  
+  .notification-toast.warning {
+    border-left: 4px solid #FF9800;
+  }
+  
+  .notification-toast.info {
+    border-left: 4px solid #2196F3;
+  }
+  
+  /* Themed variations with background colors */
+  .notification-toast.themed {
+    color: white;
+  }
+  
+  .notification-toast.themed.default {
+    background: #607D8B;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.competition_created {
+    background: #4CAF50;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.user_registered {
+    background: #2196F3;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.announcement {
+    background: #FFC107;
+    border-left: none;
+    color: #333; /* Better contrast for yellow */
+  }
+  
+  .notification-toast.themed.error {
+    background: #F44336;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.success {
+    background: #4CAF50;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.warning {
+    background: #FF9800;
+    border-left: none;
+  }
+  
+  .notification-toast.themed.info {
+    background: #2196F3;
+    border-left: none;
+  }
+  
+  .notification-toast.themed .notification-close {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .notification-toast.themed .notification-close:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .notification-container {
+      max-width: calc(100% - 30px);
+      width: calc(100% - 30px);
+    }
+    
+    .notification-container.top-right,
+    .notification-container.top-left,
+    .notification-container.top-center {
+      top: 10px;
+      right: 15px;
+      left: 15px;
+      transform: none;
+    }
+    
+    .notification-container.bottom-right,
+    .notification-container.bottom-left,
+    .notification-container.bottom-center {
+      bottom: 10px;
+      right: 15px;
+      left: 15px;
+      transform: none;
+    }
+    
+    /* Adjust animations for mobile */
+    .notification-container .notification-toast {
+      transform: translateY(-20px);
+    }
+    
+    .notification-toast.visible {
+      transform: translateY(0);
+    }
+  }

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        .failure-icon {
+            font-size: 72px;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        .details {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background 0.3s;
+            margin: 0 5px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-retry {
+            background: #27ae60;
+        }
+        .btn-retry:hover {
+            background: #219955;
+        }
+        .info-box {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fdeeee;
+            border-left: 4px solid #e74c3c;
+            border-radius: 3px;
+            text-align: left;
+        }
+        .error-message {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="failure-icon">✗</div>
+        <h1>Payment Failed</h1>
+        <p id="failure-message">Your payment could not be processed at this time.</p>
+        <p class="error-message" id="error-code">Error: <span id="error-details">Payment processing error</span></p>
+        
+        <div class="details">
+            <h2>Transaction Details</h2>
+            <p><strong>Reference ID:</strong> <span id="reference-id">Not available</span></p>
+            <p><strong>Payment Type:</strong> <span id="payment-type">Loading...</span></p>
+            <p><strong>Date:</strong> <span id="attempt-date">Loading...</span></p>
+        </div>
+        
+        <div class="actions">
+            <a href="#" id="retry-payment" class="btn btn-retry">Try Again</a>
+            <a href="/user-dashboard" class="btn">Back to Home</a>
+            <a href="/auctions" id="auction-link" class="btn">View Auction</a>
+        </div>
+        
+        <div class="info-box">
+            <h3>Why did the payment fail?</h3>
+            <p>This could be due to various reasons:</p>
+            <ul style="text-align: left;">
+                <li>Insufficient funds in your account</li>
+                <li>Card declined by the bank</li>
+                <li>Network connection issues</li>
+                <li>Payment details entered incorrectly</li>
+                <li>Technical issues with the payment gateway</li>
+            </ul>
+            <p>If the problem persists, please contact your bank or our support team at <a href="mailto:support@auctionplatform.com">support@auctionplatform.com</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentId = urlParams.get('payment_id');
+        const auctionId = urlParams.get('auctionId');
+        const paymentType = urlParams.get('type'); // 'emd' or 'final'
+        const errorCode = urlParams.get('error_code');
+        const errorDescription = urlParams.get('error_description');
+        
+        // Elements
+        const failureMessage = document.getElementById('failure-message');
+        const errorDetails = document.getElementById('error-details');
+        const referenceId = document.getElementById('reference-id');
+        const paymentTypeEl = document.getElementById('payment-type');
+        const attemptDate = document.getElementById('attempt-date');
+        const retryPayment = document.getElementById('retry-payment');
+        const auctionLink = document.getElementById('auction-link');
+        
+        // On page load, set up the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date
+            attemptDate.innerText = new Date().toLocaleString();
+            
+            // Set error details if available
+            if (errorDescription) {
+                errorDetails.innerText = errorDescription;
+            } else if (errorCode) {
+                errorDetails.innerText = `Error code: ${errorCode}`;
+            }
+            
+            // Set reference ID if available
+            if (paymentId) {
+                referenceId.innerText = paymentId;
+            }
+            
+            // Set payment type text
+            if (paymentType === 'emd') {
+                paymentTypeEl.innerText = 'EMD (Earnest Money Deposit)';
+                failureMessage.innerText = 'Your EMD payment could not be processed. You need to complete this payment to register for the auction.';
+            } else if (paymentType === 'final') {
+                paymentTypeEl.innerText = 'Final Payment';
+                failureMessage.innerText = 'Your final payment could not be processed. You need to complete this payment to finalize your auction purchase.';
+            } else {
+                paymentTypeEl.innerText = 'Not specified';
+            }
+            
+            // Set retry link
+            if (auctionId && paymentType) {
+                retryPayment.href = `/checkout?auctionId=${auctionId}&type=${paymentType}`;
+            } else {
+                retryPayment.style.display = 'none';
+            }
+            
+            // Set auction link
+            if (auctionId) {
+                auctionLink.href = `/auctions/${auctionId}`;
+            } else {
+                auctionLink.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

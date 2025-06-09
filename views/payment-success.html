@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .success-icon {
+            font-size: 72px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        .details {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .details p {
+            margin: 5px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .info-box {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            border-radius: 3px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>Payment Successful!</h1>
+        <p id="success-message">Your payment has been processed successfully.</p>
+        
+        <div class="details">
+            <h2>Payment Details</h2>
+            <p><strong>Transaction ID:</strong> <span id="transaction-id">Loading...</span></p>
+            <p><strong>Amount:</strong> <span id="payment-amount">Loading...</span></p>
+            <p><strong>Date:</strong> <span id="payment-date">Loading...</span></p>
+        </div>
+        
+        <div id="next-steps">
+            <!-- Dynamic content based on payment type -->
+        </div>
+        
+        <div class="actions">
+            <a href="/user=-dashboard" class="btn">Back to Home</a>
+            <a href="/auctions" id="auction-link" class="btn">View Auction</a>
+        </div>
+        
+        <div class="info-box">
+            <h3>What's Next?</h3>
+            <p id="whats-next">Your payment confirmation has been processed. Please check your email for the receipt.</p>
+        </div>
+    </div>
+
+    <script>
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentId = urlParams.get('payment_id');
+        const auctionId = urlParams.get('auctionId');
+        const paymentType = urlParams.get('type'); // 'emd' or 'final'
+        
+        // Elements
+        const successMessage = document.getElementById('success-message');
+        const transactionId = document.getElementById('transaction-id');
+        const paymentAmount = document.getElementById('payment-amount');
+        const paymentDate = document.getElementById('payment-date');
+        const nextSteps = document.getElementById('next-steps');
+        const auctionLink = document.getElementById('auction-link');
+        const whatsNext = document.getElementById('whats-next');
+        
+        // On page load, fetch payment details
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!paymentId) {
+                // Try to get it from razorpay_payment_id
+                const razorpayPaymentId = urlParams.get('razorpay_payment_id');
+                if (razorpayPaymentId) {
+                    transactionId.innerText = razorpayPaymentId;
+                } else {
+                    transactionId.innerText = 'Not available';
+                }
+            } else {
+                transactionId.innerText = paymentId;
+                
+                try {
+                    // Fetch payment details from backend
+                    const response = await fetch(`/api/payments/${paymentId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.payment) {
+                        const payment = data.payment;
+                        
+                        paymentAmount.innerText = `₹${payment.amount.toFixed(2)}`;
+                        paymentDate.innerText = new Date(payment.createdAt).toLocaleString();
+                        
+                        // Additional info based on payment type
+                        if (payment.paymentType === 'emd') {
+                            successMessage.innerText = 'Your EMD payment has been processed successfully. You are now registered for the auction!';
+                            nextSteps.innerHTML = `
+                                <h2>Next Steps</h2>
+                                <p>You are now registered to bid in this auction. The auction will start on the scheduled start date.</p>
+                                <p>You can place bids during the active auction period.</p>
+                            `;
+                            whatsNext.innerText = 'You will receive a confirmation email with details about the auction. Remember to participate in the bidding when the auction starts.';
+                        } else if (payment.paymentType === 'final') {
+                            successMessage.innerText = 'Your final payment has been processed successfully. Congratulations on your purchase!';
+                            nextSteps.innerHTML = `
+                                <h2>Next Steps</h2>
+                                <p>Your purchase is now complete. The seller will contact you regarding the delivery or collection of the item.</p>
+                                <p>Please check your email for further instructions.</p>
+                            `;
+                            whatsNext.innerText = 'You will receive a confirmation email with details about your purchase and next steps for collection or delivery.';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching payment details:', error);
+                }
+            }
+            
+            // Set auction link
+            if (auctionId) {
+                auctionLink.href = `/auctions/${auctionId}`;
+            } else {
+                auctionLink.href = '/my-auctions';
+            }
+        });
+    </script>
+</body>
+</html>

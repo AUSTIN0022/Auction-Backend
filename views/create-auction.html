@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Auction - Bootstrap Version</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background-color: #f5f7fa;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #3a86ff 0%, #48beff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, #3a86ff 0%, #48beff 100%);
+      color: white;
+      font-weight: bold;
+      border-radius: calc(10px - 1px) calc(10px - 1px) 0 0 !important;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #3a86ff 0%, #48beff 100%);
+      border: none;
+      box-shadow: 0 4px 15px rgba(58, 134, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(58, 134, 255, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      box-shadow: 0 4px 15px rgba(56, 176, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+      box-shadow: 0 6px 20px rgba(56, 176, 0, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .btn {
+      border-radius: 50px;
+      font-weight: 600;
+    }
+    
+    .form-control, .form-select {
+      padding: 12px 15px;
+      border-radius: 10px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #3a86ff;
+      box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+    }
+    
+    .upload-area {
+      border: 2px dashed #d9e2ef;
+      padding: 35px;
+      text-align: center;
+      border-radius: 10px;
+      background: #fbfbff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .upload-area:hover {
+      border-color: #3a86ff;
+      background: #f5f8ff;
+    }
+    
+    #image-preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .image-preview-item {
+      position: relative;
+      width: calc(20% - 8px);
+    }
+    
+    .image-preview-item img {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    
+    .remove-image-btn {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 20px;
+      height: 20px;
+      background: #ff3a3a;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .image-counter {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    
+    .image-counter.error {
+      color: #dc3545;
+    }
+    
+    .image-counter.success {
+      color: #198754;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <!-- Admin: Create Auction -->
+    <div class="card mb-4 animate__animated animate__fadeIn">
+      <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <div><i class="fas fa-plus-circle me-2"></i> Create New Auction</div>
+        <div>
+          <button id="backButton" type="button" class="btn btn-primary"><i class="fas fa-arrow-left me-2"></i> Back</button>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <form id="auctionForm">
+          <!-- Alerts will be dynamically inserted here -->
+          <div id="alertContainer"></div>
+          
+          <div class="mb-3">
+            <label for="itemCategory" class="form-label fw-semibold">Item Category</label>
+            <select class="form-select" id="itemCategory" required>
+              <option value="" disabled selected>Loading categories...</option>
+            </select>
+            <div class="form-text">Select the category that best describes your auction item.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="itemTitle" class="form-label fw-semibold">Item Title</label>
+            <input type="text" class="form-control" id="itemTitle" placeholder="e.g. Vintage Rolex Watch, Excellent Condition" required>
+            <div class="form-text">Enter a concise, descriptive title for your auction item.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="description" rows="5" placeholder="Detailed description of the item..." required></textarea>
+            <div class="form-text">Provide a detailed description including condition, history, and any relevant details.</div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Upload Images <span class="text-danger">*</span></label>
+            <div class="upload-area" id="uploadArea">
+              <i class="fas fa-cloud-upload-alt text-primary mb-3" style="font-size: 40px;"></i>
+              <div class="mb-3">Drop images here or click to upload</div>
+              <button type="button" class="btn btn-primary" id="browseButton"><i class="fas fa-folder-open me-2"></i> Browse Files</button>
+              <div id="imageCounter" class="image-counter error">(0 selected - minimum 2 required, maximum 5 allowed)</div>
+              <div id="image-preview-container"></div>
+            </div>
+            <div class="form-text">Upload high-quality images of your item. Minimum 2 images required, maximum 5 allowed.</div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="basePrice" class="form-label fw-semibold">Base Price (₹)</label>
+              <input type="text" class="form-control" id="basePrice" placeholder="e.g. 500000" required>
+              <div class="form-text">The starting bid price for the auction.</div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="emdAmount" class="form-label fw-semibold">EMD Amount (₹)</label>
+              <input type="text" class="form-control" id="emdAmount" placeholder="e.g. 5000" required>
+              <div class="form-text">Earnest Money Deposit amount required to participate in this auction.</div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+              <label for="startDate" class="form-label fw-semibold">Auction Start Date</label>
+              <input type="date" class="form-control" id="startDate" required>
+              <div class="form-text">When the auction will begin.</div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+              <label for="registrationDeadline" class="form-label fw-semibold">Registration Deadline</label>
+              <input type="date" class="form-control" id="registrationDeadline" required>
+              <div class="form-text">Last date for users to register for this auction.</div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+              <label for="endDate" class="form-label fw-semibold">Auction End Date</label>
+              <input type="date" class="form-control" id="endDate" required>
+              <div class="form-text">When the auction will end.</div>
+            </div>
+          </div>
+          
+          <div class="mt-4 text-end">
+            <button type="button" id="saveDraftButton" class="btn btn-secondary me-2"><i class="fas fa-save me-2"></i> Save Draft</button>
+            <button type="button" id="publishButton" class="btn btn-success"><i class="fas fa-paper-plane me-2"></i> Publish Auction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for image upload -->
+  <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+
+  <!-- Bootstrap JS and Popper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  
+  <!-- Firebase SDK (already included in your project) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+
+    <script>
+    const userRaw = localStorage.getItem('user');
+    const user = userRaw ? JSON.parse(userRaw) : null;
+
+    if (user) {
+        const userDiv = document.createElement('div');
+        userDiv.id = 'user-info';
+        userDiv.style.display = 'none';
+        userDiv.dataset.userId = user.id;
+        userDiv.dataset.userRole = user.role;
+        document.body.appendChild(userDiv);
+    }
+    </script>
+
+    <!-- Firebase and client-notification.js -->
+    <script src="/js/client-notification.js"></script>
+
+
+  <!-- Auction Form JavaScript -->
+  <script>
+    // Initialize when document is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Global variables
+      let selectedFiles = [];
+      const MIN_REQUIRED_IMAGES = 2;
+      const MAX_ALLOWED_IMAGES = 5;
+      
+      // Fetch categories on page load
+      fetchCategories();
+      
+      // Setup form event listeners
+      setupFormHandlers();
+      setupImageUpload();
+      
+      /**
+       * Fetch categories from the API and populate the dropdown
+       */
+      function fetchCategories() {
+        fetch('/api/admin/auction/categories',  {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.categories) {
+              populateCategoriesDropdown(data.categories);
+            } else {
+              showError('Failed to load categories');
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching categories:', error);
+            showError('Failed to load categories. Please try again later.');
+          });
+      }
+      
+      /**
+       * Populate the categories dropdown with data from the API
+       */
+      function populateCategoriesDropdown(categories) {
+        const categorySelect = document.getElementById('itemCategory');
+        
+        // Clear existing options
+        categorySelect.innerHTML = '';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.textContent = 'Select a category';
+        defaultOption.value = '';
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        categorySelect.appendChild(defaultOption);
+        
+        // Add categories from API
+        categories.forEach(category => {
+          const option = document.createElement('option');
+          option.value = category._id;
+          option.textContent = category.name;
+          option.dataset.description = category.description;
+          categorySelect.appendChild(option);
+        });
+      }
+      
+      /**
+       * Setup form event handlers
+       */
+      function setupFormHandlers() {
+        const form = document.getElementById('auctionForm');
+        const publishButton = document.getElementById('publishButton');
+        const saveDraftButton = document.getElementById('saveDraftButton');
+        const backButton = document.getElementById('backButton');
+        
+        publishButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          submitForm('pending');
+        });
+        
+        saveDraftButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          submitForm('draft');
+        });
+        
+        backButton.addEventListener('click', function() {
+          // Handle back button - you might want to redirect to a previous page
+          window.history.back();
+        });
+        
+        // Set minimum date for date inputs to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+        document.getElementById('endDate').min = today;
+        document.getElementById('registrationDeadline').min = today;
+      }
+      
+      /**
+       * Setup image upload functionality
+       */
+      function setupImageUpload() {
+        const uploadArea = document.getElementById('uploadArea');
+        const browseButton = document.getElementById('browseButton');
+        const fileInput = document.getElementById('fileInput');
+        
+        // Trigger file input when browse button is clicked
+        browseButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+          handleFileSelection(fileInput.files);
+        });
+        
+        // Make the entire upload area clickable
+        uploadArea.addEventListener('click', function(e) {
+          // Prevent triggering if clicking on a button or image preview
+          if (e.target === uploadArea || e.target.parentElement === uploadArea) {
+            fileInput.click();
+          }
+        });
+        
+        // Setup drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          uploadArea.classList.add('border-primary');
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+          uploadArea.classList.remove('border-primary');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+          e.preventDefault();
+          uploadArea.classList.remove('border-primary');
+          handleFileSelection(e.dataTransfer.files);
+        });
+      }
+      
+      /**
+       * Handle file selection and preview
+       */
+      function handleFileSelection(files) {
+        // Check if adding these files would exceed the maximum
+        if (selectedFiles.length + files.length > MAX_ALLOWED_IMAGES) {
+          showError(`You can upload a maximum of ${MAX_ALLOWED_IMAGES} images`);
+          return;
+        }
+        
+        // Add new files to our array
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (file.type.startsWith('image/')) {
+            selectedFiles.push(file);
+          }
+        }
+        
+        // Update the UI with selected files
+        updateImagePreview();
+      }
+      
+      /**
+       * Update the image preview area
+       */
+      function updateImagePreview() {
+        const previewContainer = document.getElementById('image-preview-container');
+        const imageCounter = document.getElementById('imageCounter');
+        
+        // Clear existing preview
+        previewContainer.innerHTML = '';
+        
+        // Update image counter
+        if (selectedFiles.length < MIN_REQUIRED_IMAGES) {
+          imageCounter.className = 'image-counter error';
+          imageCounter.textContent = `(${selectedFiles.length} selected - minimum ${MIN_REQUIRED_IMAGES} required, maximum ${MAX_ALLOWED_IMAGES} allowed)`;
+        } else {
+          imageCounter.className = 'image-counter success';
+          imageCounter.textContent = `(${selectedFiles.length} images selected ✓)`;
+        }
+        
+        // Add image previews
+        selectedFiles.forEach((file, index) => {
+          const previewItem = document.createElement('div');
+          previewItem.className = 'image-preview-item';
+          
+          const previewImg = document.createElement('img');
+          previewImg.src = URL.createObjectURL(file);
+          previewImg.alt = 'Image preview';
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-image-btn';
+          removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+          removeBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent triggering upload area click
+            selectedFiles.splice(index, 1);
+            updateImagePreview();
+          });
+          
+          previewItem.appendChild(previewImg);
+          previewItem.appendChild(removeBtn);
+          previewContainer.appendChild(previewItem);
+        });
+      }
+      
+      // Submit the form data
+      function submitForm(status) {
+        
+        if (!validateForm()) {
+          return;
+        }
+        
+        // Create FormData to send
+        const formData = new FormData();
+        
+      
+        const categoryId = document.getElementById('itemCategory').value;
+        const title = document.getElementById('itemTitle').value;
+        const description = document.getElementById('description').value;
+        const basePrice = document.getElementById('basePrice').value;
+        const emdAmount = document.getElementById('emdAmount').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const registrationDeadline = document.getElementById('registrationDeadline').value;
+        
+        const userId = localStorage.getItem('userId') || "67697d43d1df912d7ac760af"; // Fallback for testing
+        
+        
+        const startDateTime = new Date(startDate).toISOString();
+        const endDateTime = new Date(endDate).toISOString();
+        const registrationDeadlineTime = new Date(registrationDeadline).toISOString();
+        
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('basePrice', parseInt(basePrice));
+        formData.append('emdAmount', parseInt(emdAmount));
+        formData.append('startDate', startDateTime);
+        formData.append('endDate', endDateTime);
+        formData.append('registrationDeadline', registrationDeadlineTime);
+        formData.append('status', status);
+        formData.append('categorie', categoryId);
+        console.log(userId);
+        const cleanUserId = userId ? userId.replace(/^"|"$/g, '') : '';
+        formData.append('createdBy', cleanUserId);
+        console.log(cleanUserId);
+        
+        // Add all images to FormData
+        selectedFiles.forEach((file, index) => {
+          formData.append('auction_images', file);
+        });
+        
+        // Show loading state
+        toggleLoadingState(true);
+        console.log("Request in Frontend controller");
+        console.log(`Form data: ${JSON.stringify(formData)}`);
+        console.log("FormData:");
+        for (const pair of formData.entries()) {
+            console.log(pair[0]+ ': ' + pair[1]);
+        }
+
+        // Send the request
+        fetch('/api/admin/auction/create', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+          headers: {
+            // Don't set Content-Type when using FormData
+            // Content-Type is automatically set with the correct boundary
+            'Authorization': `Bearer ${localStorage.getItem('token') || 'dummy-token'}`
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            toggleLoadingState(false);
+            
+            if (data.success) {
+              showSuccess('Auction created successfully!');
+              // You might want to redirect or reset the form here
+              setTimeout(() => {
+                window.location.href = '/admin-dashboard'; // Redirect to auctions list
+              }, 2000);
+            } else {
+              showError(data.message || 'Failed to create auction');
+            }
+          })
+          .catch(error => {
+            toggleLoadingState(false);
+            console.error('Error creating auction:', error);
+            showError('An error occurred. Please try again later.');
+          });
+      }
+      
+      /**
+       * Validate the form before submission
+       */
+      function validateForm() {
+        // Reset previous error messages
+        clearErrorMessages();
+        
+        let isValid = true;
+        
+        // Validate category
+        const categorySelect = document.getElementById('itemCategory');
+        if (!categorySelect.value) {
+          showFieldError(categorySelect, 'Please select a category');
+          isValid = false;
+        }
+        
+        // Validate title
+        const titleInput = document.getElementById('itemTitle');
+        if (!titleInput.value.trim()) {
+          showFieldError(titleInput, 'Please enter a title');
+          isValid = false;
+        }
+        
+        // Validate description
+        const descriptionInput = document.getElementById('description');
+        if (!descriptionInput.value.trim()) {
+          showFieldError(descriptionInput, 'Please enter a description');
+          isValid = false;
+        }
+        
+        // Validate base price
+        const basePriceInput = document.getElementById('basePrice');
+        if (!basePriceInput.value.trim() || isNaN(parseInt(basePriceInput.value))) {
+          showFieldError(basePriceInput, 'Please enter a valid base price');
+          isValid = false;
+        }
+        
+        // Validate EMD amount
+        const emdAmountInput = document.getElementById('emdAmount');
+        if (!emdAmountInput.value.trim() || isNaN(parseInt(emdAmountInput.value))) {
+          showFieldError(emdAmountInput, 'Please enter a valid EMD amount');
+          isValid = false;
+        }
+        
+        // Validate dates
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const registrationDeadlineInput = document.getElementById('registrationDeadline');
+        
+        if (!startDateInput.value) {
+          showFieldError(startDateInput, 'Please select a start date');
+          isValid = false;
+        }
+        
+        if (!endDateInput.value) {
+          showFieldError(endDateInput, 'Please select an end date');
+          isValid = false;
+        }
+        
+        if (!registrationDeadlineInput.value) {
+          showFieldError(registrationDeadlineInput, 'Please select a registration deadline');
+          isValid = false;
+        }
+        
+        if (startDateInput.value && endDateInput.value && registrationDeadlineInput.value) {
+          const startDate = new Date(startDateInput.value);
+          const endDate = new Date(endDateInput.value);
+          const registrationDeadline = new Date(registrationDeadlineInput.value);
+          
+          if (endDate <= startDate) {
+            showFieldError(endDateInput, 'End date must be after start date');
+            isValid = false;
+          }
+          
+          if (registrationDeadline > startDate) {
+            showFieldError(registrationDeadlineInput, 'Registration deadline must be before or on the start date');
+            isValid = false;
+          }
+        }
+        
+        // Validate image requirements
+        if (selectedFiles.length < MIN_REQUIRED_IMAGES) {
+          showError(`Please upload at least ${MIN_REQUIRED_IMAGES} images`);
+          isValid = false;
+        }
+        
+        if (selectedFiles.length > MAX_ALLOWED_IMAGES) {
+          showError(`Please upload no more than ${MAX_ALLOWED_IMAGES} images`);
+          isValid = false;
+        }
+        
+        return isValid;
+      }
+      
+      // Show error message for a specific field
+      function showFieldError(field, message) {
+        // Check if error message already exists
+        let errorElement = field.nextElementSibling;
+        if (!errorElement || !errorElement.classList.contains('invalid-feedback')) {
+          errorElement = document.createElement('div');
+          errorElement.className = 'invalid-feedback';
+          field.parentNode.insertBefore(errorElement, field.nextSibling);
+        }
+        
+        // Add error message and styling
+        errorElement.textContent = message;
+        field.classList.add('is-invalid');
+      }
+      
+      // Clear all error messages
+      function clearErrorMessages() {
+        // Remove field-specific errors
+        document.querySelectorAll('.is-invalid').forEach(field => {
+          field.classList.remove('is-invalid');
+        });
+        
+        // Remove any alert messages
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+      }
+      
+      // Show a general error message
+      function showError(message) {
+        showAlert(message, 'danger');
+      }
+      
+      // Show a success message 
+      function showSuccess(message) {
+        showAlert(message, 'success');
+      }
+      
+      // Show an alert message
+      function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        // Create alert element
+        const alertElement = document.createElement('div');
+        alertElement.className = `alert alert-${type} alert-dismissible fade show mb-4`;
+        alertElement.role = 'alert';
+        
+        // Add alert content
+        alertElement.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Clear existing alerts
+        alertContainer.innerHTML = '';
+        
+        // Insert new alert
+        alertContainer.appendChild(alertElement);
+        
+        // Scroll to top to make sure alert is visible
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      
+      /**
+       * Toggle loading state of the form
+       */
+      function toggleLoadingState(isLoading) {
+        const submitButtons = document.querySelectorAll('form button[type="button"]');
+        
+        submitButtons.forEach(button => {
+          button.disabled = isLoading;
+          
+          if (isLoading) {
+            button.dataset.originalHtml = button.innerHTML;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+          } else if (button.dataset.originalHtml) {
+            button.innerHTML = button.dataset.originalHtml;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

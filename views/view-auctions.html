@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auctions - BidBazaar</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --bs-primary: #3a86ff;
+      --bs-secondary: #ff006e;
+      --bs-success: #38b000;
+      --bs-warning: #ffbe0b;
+      --bs-danger: #ff5400;
+      --bs-dark: #1a2639;
+      --header-height: 70px;
+      --sidebar-width: 250px;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-top: var(--header-height);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Header styling */
+    header {
+      background: linear-gradient(135deg, #3a86ff 0%, #48beff 100%);
+      color: white;
+      padding: 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      height: var(--header-height);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1030;
+    }
+    
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    
+    .navbar-brand i {
+      margin-right: 0.5rem;
+    }
+    
+    .nav-link {
+      color: rgba(255,255,255,0.9) !important;
+      font-weight: 500;
+      padding: 0.5rem 1rem !important;
+      transition: all 0.2s ease;
+    }
+    
+    .nav-link:hover {
+      color: white !important;
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 4px;
+    }
+    
+    .nav-link.active {
+      color: white !important;
+      background-color: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+    
+    .search-form {
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .user-actions .btn {
+      border-radius: 50px;
+      padding: 0.4rem 1.2rem;
+      font-weight: 500;
+    }
+    
+    .user-actions .btn-light {
+      background-color: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+    }
+    
+    .user-actions .btn-light:hover {
+      background-color: rgba(255,255,255,0.3);
+      color: white;
+    }
+    
+    /* Sidebar styling */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: #1a2639;
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+      z-index: 1020;
+    }
+    
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-menu li {
+      margin-bottom: 0.25rem;
+    }
+    
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      color: rgba(255,255,255,0.7);
+      padding: 0.85rem 1.5rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-menu a:hover {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-menu a.active {
+      color: white;
+      background-color: var(--bs-primary);
+    }
+    
+    .sidebar-menu i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .sidebar-menu .badge {
+      margin-left: auto;
+    }
+    
+    /* Dashboard content styling */
+    .dashboard-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    
+    .page-header .breadcrumb {
+      margin-bottom: 0.5rem;
+    }
+    
+    .page-header h1 {
+      font-weight: 700;
+      color: var(--bs-dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Filter bar */
+    .filter-bar {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .filter-control {
+      min-width: 150px;
+    }
+    
+    /* Auction card styling */
+    .auction-card {
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background-color: white;
+      overflow: hidden;
+      height: 100%;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: none;
+    }
+    
+    .auction-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    
+    .auction-img {
+      height: 220px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .auction-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .auction-card:hover .auction-img img {
+      transform: scale(1.05);
+    }
+    
+    .auction-status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.35rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      z-index: 1;
+    }
+    
+    .status-active {
+      background-color: rgba(40, 167, 69, 0.9);
+      color: white;
+    }
+    
+    .status-upcoming {
+      background-color: rgba(13, 110, 253, 0.9);
+      color: white;
+    }
+    
+    .status-completed {
+      background-color: rgba(108, 117, 125, 0.9);
+      color: white;
+    }
+    
+    .status-draft {
+      background-color: rgba(108, 117, 125, 0.9);
+      color: white;
+    }
+    
+    .auction-body {
+      padding: 1.5rem;
+    }
+    
+    .auction-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 2.75rem;
+    }
+    
+    .auction-price {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--bs-dark);
+    }
+    
+    .auction-details {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+    
+    .auction-dates {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    
+    .auction-dates div {
+      display: flex;
+      align-items: center;
+    }
+    
+    .auction-dates i {
+      width: 16px;
+      margin-right: 0.5rem;
+      color: var(--bs-primary);
+    }
+    
+    .auction-action {
+      margin-top: 1rem;
+    }
+    
+    .btn-bid {
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      width: 100%;
+    }
+    
+    .btn-register {
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      width: 100%;
+      background-color: var(--bs-warning);
+      border-color: var(--bs-warning);
+      color: #212529;
+    }
+    
+    .btn-register:hover {
+      background-color: #e5ac00;
+      border-color: #e5ac00;
+      color: #212529;
+    }
+    
+    .btn-view {
+      border-radius: 50px;
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      width: 100%;
+      background-color: transparent;
+      border-color: var(--bs-primary);
+      color: var(--bs-primary);
+    }
+    
+    .btn-view:hover {
+      background-color: var(--bs-primary);
+      color: white;
+    }
+    
+    /* Admin card styling */
+    .admin-auction-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background-color: white;
+      margin-bottom: 24px;
+    }
+    
+    .admin-auction-img {
+      height: 180px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    
+    .admin-auction-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .admin-auction-body {
+      padding: 1.25rem;
+    }
+    
+    .admin-auction-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .admin-auction-id {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-bottom: 0.75rem;
+    }
+    
+    .admin-auction-price {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--bs-dark);
+      margin-bottom: 1rem;
+    }
+    
+    .admin-auction-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+    
+    .admin-auction-actions .btn {
+      border-radius: 50px;
+      padding: 0.4rem 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .admin-auction-actions .btn i {
+      margin-right: 0.25rem;
+    }
+    
+    /* Create auction button */
+    .create-auction-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--bs-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+    
+    .create-auction-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      background-color: #2a75f0;
+    }
+    
+    .create-auction-btn i {
+      font-size: 1.5rem;
+    }
+    
+    /* No auctions message */
+    .no-auctions {
+      text-align: center;
+      padding: 3rem 1rem;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .no-auctions i {
+      font-size: 4rem;
+      color: #dee2e6;
+      margin-bottom: 1.5rem;
+    }
+    
+    .no-auctions h3 {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+    
+    .no-auctions p {
+      color: #6c757d;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    /* Loading spinner */
+    .loading-container {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    
+    .loading-spinner {
+      width: 3rem;
+      height: 3rem;
+      border-width: 0.25rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .dashboard-content {
+        margin-left: 0;
+      }
+      
+      .toggle-sidebar {
+        display: block !important;
+      }
+    }
+    
+    @media (max-width: 767.98px) {
+      .filter-bar {
+        padding: 1rem;
+      }
+      
+      .filter-row {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .filter-control {
+        width: 100%;
+      }
+      
+      .auction-img {
+        height: 180px;
+      }
+      
+      .admin-auction-actions {
+        flex-direction: column;
+      }
+    }
+    
+    /* Utilities */
+    .toggle-sidebar {
+      display: none;
+    }
+    
+    .badge-notification {
+      position: relative;
+      top: -8px;
+      right: -2px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      border-radius: 50px;
+    }
+    
+    .badge-draft {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .badge-active {
+      background-color: #28a745;
+      color: white;
+    }
+    .badge-warning {
+        background-color: #e7d512;
+        color: white;
+      }
+    .badge-completed {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .breadcrumb-item a {
+      color: var(--bs-primary);
+      text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark h-100">
+      <div class="container-fluid">
+        <button class="btn text-white toggle-sidebar me-2" id="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-gavel"></i> BidBazaar
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav d-none d-lg-flex me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/auctions">Auctions</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/how-it-works">How It Works</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/contact">Contact</a>
+            </li>
+          </ul>
+          <form class="search-form d-none d-lg-flex my-2 my-lg-0 mx-lg-2">
+            <div class="input-group">
+              <input class="form-control" type="search" placeholder="Search auctions..." aria-label="Search">
+              <button class="btn btn-light" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </form>
+          <div class="user-actions d-none d-lg-flex gap-2">
+            <a href="/dashboard" class="btn btn-light d-flex align-items-center">
+              <i class="fas fa-user me-2"></i> <span id="navUsername">My Account</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Sidebar - Admin -->
+  <div class="sidebar admin-sidebar" id="adminSidebar">
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard" class="active">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/user-verification">
+          <i class="fas fa-user-check"></i> User Verification
+        </a>
+      </li>
+      <li>
+        <a href="/user-management">
+          <i class="fas fa-users"></i> User Management
+        </a>
+      </li>
+      <li>
+        <a href="/auctions" class="active">
+          <i class="fas fa-gavel"></i> Auctions
+        </a>
+      </li>
+      <li>
+        <a href="/transactions">
+          <i class="fas fa-exchange-alt"></i> Transactions
+        </a>
+      </li>
+      <li>
+        <a href="/reports">
+          <i class="fas fa-chart-bar"></i> Reports
+        </a>
+      </li>
+      <li>
+        <a href="/settings">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+      </li>
+      <li>
+        <a href="/support-tickets">
+          <i class="fas fa-ticket-alt"></i> Support Tickets
+        </a>
+      </li>
+      <li>
+        <a href="/logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Sidebar - User -->
+  <div class="sidebar user-sidebar" id="userSidebar">
+    <ul class="sidebar-menu">
+      <li>
+        <a href="/dashboard">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/auctions" class="active">
+          <i class="fas fa-gavel"></i> Auctions
+        </a>
+      </li>
+      <li>
+        <a href="/profile">
+          <i class="fas fa-user"></i> My Profile
+        </a>
+      </li>
+      <li>
+        <a href="/notifications">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="badge bg-danger rounded-pill">3</span>
+        </a>
+      </li>
+      <li>
+        <a href="/help-center">
+          <i class="fas fa-question-circle"></i> Help Center
+        </a>
+      </li>
+      <li>
+        <a href="/logout">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- User Dashboard Content -->
+  <div class="dashboard-content" id="userContent">
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1>Explore Auctions</h1>
+        <p class="text-muted">Discover unique items and place your bids</p>
+      </div>
+      
+      <!-- Filter Bar -->
+      <div class="filter-bar mb-4">
+        <div class="row align-items-center filter-row">
+          <div class="col-md-6">
+            <div class="d-flex gap-2">
+              <select class="form-select filter-control" aria-label="Filter by status">
+                <option selected>All Statuses</option>
+                <option value="active">Active</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select class="form-select filter-control" aria-label="Sort by">
+                <option selected>Sort By: Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="end-date">End Date</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search auctions...">
+              <button class="btn btn-primary" type="button"><i class="fas fa-search"></i> Search</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auctions Grid -->
+      <div class="row" id="userAuctionsContainer">
+        <!-- Loading indicator will be replaced with auction cards -->
+        <div class="col-12 loading-container">
+          <div class="spinner-border loading-spinner text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading auctions...</p>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <nav aria-label="Auction pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Content -->
+  <div class="dashboard-content" id="adminContent">
+    <div class="container-fluid">
+      <!-- Page Header -->
+      <div class="page-header">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">All Auctions</li>
+          </ol>
+        </nav>
+        <h1>All Auctions</h1>
+      </div>
+      
+      <!-- Filter Bar -->
+      <div class="filter-bar mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <div class="d-flex gap-2">
+              <select class="form-select filter-control" id="adminStatusFilter">
+                <option selected>Status</option>
+                <option value="active">Active</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="completed">Completed</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search auctions..." id="adminSearchInput">
+              <button class="btn btn-primary" type="button" id="adminSearchBtn">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auctions Grid -->
+      <div class="row" id="adminAuctionsContainer">
+        <!-- Loading indicator will be replaced with auction cards -->
+        <div class="col-12 loading-container">
+          <div class="spinner-border loading-spinner text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Loading auctions...</p>
+        </div>
+      </div>
+      
+      <!-- Create Auction Button -->
+      <a href="/create-auction" class="create-auction-btn" title="Create New Auction">
+        <i class="fas fa-plus"></i>
+      </a>
+    </div>
+  </div>
+  
+  <script>
+  // Global variables
+let allAuctions = [];
+let currentFilters = {
+  status: "All Statuses",
+  sort: "Sort By: Newest",
+  search: ""
+};
+
+// Function to fetch auctions from API
+async function fetchAuctions() {
+  try {
+    const user = JSON.parse(localStorage.getItem('user')) || { role: 'user' };
+    console.log("Fetching auctions for role:", user.role);
+    
+    // Using fetch with error handling
+    const response = await fetch('/api/auctions',  {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && data.auctions) {
+      allAuctions = data.auctions;
+      
+      // Apply filters based on user role
+      if (user.role === 'admin') {
+        renderAdminAuctions(allAuctions);
+      } else {
+        // Filter out draft auctions for regular users
+        const userVisibleAuctions = allAuctions.filter(auction => 
+          ['active', 'pending', 'completed'].includes(auction.status)
+        );
+        renderUserAuctions(userVisibleAuctions);
+      }
+    } else {
+      throw new Error(data.message || 'No auctions found');
+    }
+  } catch (error) {
+    console.error('Error fetching auctions:', error);
+    
+    // Show error message in containers
+    const user = JSON.parse(localStorage.getItem('user')) || { role: 'user' };
+    if (user.role === 'admin') {
+      const container = document.getElementById('adminAuctionsContainer');
+      container.innerHTML = `
+        <div class="col-12">
+          <div class="no-auctions">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Error loading auctions</h3>
+            <p>Unable to connect to the auction service. Please try again later.</p>
+          </div>
+        </div>
+      `;
+    } else {
+      const container = document.getElementById('userAuctionsContainer');
+      container.innerHTML = `
+        <div class="col-12">
+          <div class="no-auctions">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Error loading auctions</h3>
+            <p>Unable to connect to the auction service. Please try again later.</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+// Function to render auctions in user view
+function renderUserAuctions(auctions) {
+  const container = document.getElementById('userAuctionsContainer');
+  
+  if (!auctions || auctions.length === 0) {
+    container.innerHTML = `
+      <div class="col-12">
+        <div class="no-auctions">
+          <i class="fas fa-search"></i>
+          <h3>No auctions found</h3>
+          <p>Try adjusting your filters or check back later for new auctions.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  
+  auctions.forEach(auction => {
+    const startDate = new Date(auction.startDate);
+    const endDate = new Date(auction.endDate);
+    console.log(`Auction Status: ${auction.status}`);
+    
+    let statusClass = '';
+    let statusText = '';
+    let actionButton = '';
+    
+    switch(auction.status) {
+      case 'active':
+        statusClass = 'status-active';
+        statusText = 'Active';
+        actionButton = `
+          <a href="/place-bid/${auction._id}" class="btn btn-primary btn-bid">
+            <i class="fas fa-gavel me-2"></i> Place Bid
+          </a>
+        `;
+        break;
+      case 'pending':
+        statusClass = 'status-upcoming';
+        statusText = 'Upcoming';
+        actionButton = `
+          <a href="/checkout?auctionId=${auction._id}&type=emd" class="btn btn-register">
+            <i class="fas fa-bell me-2"></i> Register Interest
+          </a>
+        `;
+        break;
+      case 'completed':
+        statusClass = 'status-completed';
+        statusText = 'Completed';
+        actionButton = `
+          <a href="/auctions/${auction._id}" class="btn btn-view">
+            <i class="fas fa-eye me-2"></i> View Results
+          </a>
+        `;
+        break;
+      default:
+        break;
+    }
+    
+    html += `
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="auction-card" onclick="window.location.href='/auctions/${auction._id}'">
+          <div class="auction-img">
+            <img src="${auction.images[0] || '/api/placeholder/400/300'}" alt="${auction.title}">
+            <div class="auction-status ${statusClass}">
+              ${statusText}
+            </div>
+          </div>
+          <div class="auction-body">
+            <h5 class="auction-title">${auction.title}</h5>
+            <div class="auction-price mb-2">
+              $${auction.currentBid ? auction.currentBid.toLocaleString() : auction.basePrice.toLocaleString()}
+              <small class="text-muted ms-1">${auction.bidCount || 0} bids</small>
+            </div>
+            <div class="auction-dates">
+              <div>
+                <i class="far fa-calendar-alt"></i>
+                <span>Starts: ${startDate.toLocaleDateString()}, ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+              <div>
+                <i class="far fa-calendar-check"></i>
+                <span>Ends: ${endDate.toLocaleDateString()}, ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+            </div>
+            <div class="auction-action">
+              ${actionButton}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Function to render auctions in admin view
+function renderAdminAuctions(auctions) {
+  const container = document.getElementById('adminAuctionsContainer');
+  
+  if (!auctions || auctions.length === 0) {
+    container.innerHTML = `
+      <div class="col-12">
+        <div class="no-auctions">
+          <i class="fas fa-search"></i>
+          <h3>No auctions found</h3>
+          <p>Try adjusting your filters or create a new auction.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  
+  auctions.forEach(auction => {
+    let statusBadge = '';
+
+    switch(auction.status) {
+      case 'active':
+        statusBadge = '<span class="badge badge-active">Active</span>';
+        break;
+      case 'pending':
+        statusBadge = '<span class="badge badge-warning">Upcoming</span>';
+        break;
+      case 'completed':
+        statusBadge = '<span class="badge badge-completed">Completed</span>';
+        break;
+      case 'draft':
+        statusBadge = '<span class="badge badge-draft">Draft</span>';
+        break;
+      default:
+        break;
+    }
+    
+    html += `
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="admin-auction-card">
+          <div class="admin-auction-img">
+            <img src="${auction.images[0] || '/api/placeholder/400/300'}" alt="${auction.title}">
+          </div>
+          <div class="admin-auction-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="admin-auction-title mb-0">${auction.title}</h5>
+              ${statusBadge}
+            </div>
+            <div class="admin-auction-id text-muted">#${auction._id}</div>
+            <div class="admin-auction-price">$${auction.basePrice.toLocaleString()}</div>
+            <div class="admin-auction-dates">
+              <div class="d-flex justify-content-between text-muted">
+                <span><i class="far fa-calendar-alt me-1"></i> Start: ${new Date(auction.startDate).toLocaleDateString()}</span>
+                <span><i class="far fa-calendar-check me-1"></i> End: ${new Date(auction.endDate).toLocaleDateString()}</span>
+              </div>
+            </div>
+            <div class="admin-auction-actions">
+              <a href="/auctions/edit/${auction._id}" class="btn btn-outline-primary">
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <a href="/auctions/${auction._id}" class="btn btn-outline-secondary">
+                <i class="fas fa-eye"></i> View
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+
+
+// Function to apply filters for user view
+function applyFilters() {
+  const user = JSON.parse(localStorage.getItem('user')) || { role: 'user' };
+  let filteredAuctions = [...allAuctions];
+  
+  // For regular users, only show visible statuses
+  if (user.role !== 'admin') {
+    filteredAuctions = filteredAuctions.filter(auction => 
+      ['active', 'upcoming', 'completed'].includes(auction.status)
+    );
+  }
+  
+  // Apply status filter
+  if (currentFilters.status && currentFilters.status !== 'All Statuses') {
+    const status = currentFilters.status.toLowerCase();
+    filteredAuctions = filteredAuctions.filter(auction => auction.status === status);
+  }
+  
+  // Apply search filter
+  if (currentFilters.search) {
+    const searchTerm = currentFilters.search.toLowerCase();
+    filteredAuctions = filteredAuctions.filter(auction => 
+      auction.title.toLowerCase().includes(searchTerm) || 
+      (auction.description && auction.description.toLowerCase().includes(searchTerm))
+    );
+  }
+  
+  // Apply sort
+  if (currentFilters.sort) {
+    switch(currentFilters.sort) {
+      case 'Sort By: Newest':
+        filteredAuctions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'price-asc':
+        filteredAuctions.sort((a, b) => a.basePrice - b.basePrice);
+        break;
+      case 'price-desc':
+        filteredAuctions.sort((a, b) => b.basePrice - a.basePrice);
+        break;
+      case 'end-date':
+        filteredAuctions.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+        break;
+    }
+  }
+  
+  // Render filtered auctions based on user role
+  if (user.role === 'admin') {
+    renderAdminAuctions(filteredAuctions);
+  } else {
+    renderUserAuctions(filteredAuctions);
+  }
+  
+  // Update URL with filters
+  updateUrlWithFilters();
+}
+
+// Function to apply filters for admin view
+function applyAdminFilters() {
+  let filteredAuctions = [...allAuctions];
+  
+  // Apply status filter
+  if (currentFilters.status && currentFilters.status !== 'Status') {
+    const status = currentFilters.status.toLowerCase();
+    filteredAuctions = filteredAuctions.filter(auction => auction.status === status);
+  }
+  
+  // Apply search filter
+  if (currentFilters.search) {
+    const searchTerm = currentFilters.search.toLowerCase();
+    filteredAuctions = filteredAuctions.filter(auction => 
+      auction.title.toLowerCase().includes(searchTerm) || 
+      auction._id.includes(searchTerm) ||
+      (auction.description && auction.description.toLowerCase().includes(searchTerm))
+    );
+  }
+  
+  // Render filtered auctions
+  renderAdminAuctions(filteredAuctions);
+  
+  // Update URL with filters
+  updateUrlWithFilters();
+}
+
+// Function to update URL with current filters
+function updateUrlWithFilters() {
+  const params = new URLSearchParams();
+  
+  if (currentFilters.status && currentFilters.status !== 'All Statuses' && currentFilters.status !== 'Status') {
+    params.set('status', currentFilters.status);
+  }
+  
+  if (currentFilters.sort && currentFilters.sort !== 'Sort By: Newest') {
+    params.set('sort', currentFilters.sort);
+  }
+  
+  if (currentFilters.search) {
+    params.set('search', currentFilters.search);
+  }
+  
+  const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+  window.history.replaceState(null, '', newUrl);
+}
+
+// Function to load filters from URL
+function loadFiltersFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  
+  if (params.has('status')) {
+    currentFilters.status = params.get('status');
+    
+    // Update UI
+    const statusFilter = document.querySelector('select[aria-label="Filter by status"]');
+    if (statusFilter) {
+      statusFilter.value = currentFilters.status;
+    }
+    
+    const adminStatusFilter = document.getElementById('adminStatusFilter');
+    if (adminStatusFilter) {
+      adminStatusFilter.value = currentFilters.status;
+    }
+  }
+  
+  if (params.has('sort')) {
+    currentFilters.sort = params.get('sort');
+    
+    // Update UI
+    const sortFilter = document.querySelector('select[aria-label="Sort by"]');
+    if (sortFilter) {
+      sortFilter.value = currentFilters.sort;
+    }
+  }
+  
+  if (params.has('search')) {
+    currentFilters.search = params.get('search');
+    
+    // Update UI
+    const searchInput = document.querySelector('input[placeholder="Search auctions..."]');
+    if (searchInput) {
+      searchInput.value = currentFilters.search;
+    }
+    
+    const adminSearchInput = document.getElementById('adminSearchInput');
+    if (adminSearchInput) {
+      adminSearchInput.value = currentFilters.search;
+    }
+  }
+}
+
+// Check user role and show appropriate content
+document.addEventListener('DOMContentLoaded', function() {
+  // Get user from localStorage or create a default user object
+  let user;
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      // Default to user role if not found in localStorage
+      user = { role: 'user', username: 'Guest User' };
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+  } catch (error) {
+    console.error("Error parsing user from localStorage:", error);
+    user = { role: 'user', username: 'Guest User' };
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+  
+  console.log("User role:", user.role);
+  
+  // Update UI based on user role
+  if (user.role === 'admin') {
+    document.getElementById('adminSidebar').style.display = 'block';
+    document.getElementById('userSidebar').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    document.getElementById('userContent').style.display = 'none';
+    document.getElementById('navUsername').textContent = 'Admin Panel';
+  } else {
+    document.getElementById('adminSidebar').style.display = 'none';
+    document.getElementById('userSidebar').style.display = 'block';
+    document.getElementById('adminContent').style.display = 'none';
+    document.getElementById('userContent').style.display = 'block';
+    document.getElementById('navUsername').textContent = user.username || 'My Account';
+  }
+  
+  // Setup sidebar toggle for mobile
+  document.getElementById('toggleSidebar').addEventListener('click', function() {
+    const activeSidebar = user.role === 'admin' ? 
+      document.getElementById('adminSidebar') : 
+      document.getElementById('userSidebar');
+    
+    activeSidebar.classList.toggle('show');
+  });
+  
+  // Initialize filters
+  setupFilters();
+  
+  // Load filters from URL if present
+  loadFiltersFromUrl();
+  
+  // Fetch auctions
+  fetchAuctions();
+});
+
+// Function to set up filter event listeners
+function setupFilters() {
+  // User Status filter
+  const statusFilter = document.querySelector('select[aria-label="Filter by status"]');
+  if (statusFilter) {
+    statusFilter.addEventListener('change', function() {
+      currentFilters.status = this.value;
+      applyFilters();
+    });
+  }
+  
+  // User Sort filter
+  const sortFilter = document.querySelector('select[aria-label="Sort by"]');
+  if (sortFilter) {
+    sortFilter.addEventListener('change', function() {
+      currentFilters.sort = this.value;
+      applyFilters();
+    });
+  }
+  
+  // User Search input
+  const searchInput = document.querySelector('.col-md-6 .input-group input[placeholder="Search auctions..."]');
+  if (searchInput) {
+    searchInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        currentFilters.search = this.value;
+        applyFilters();
+      }
+    });
+  }
+  
+  // User Search button
+  const searchButton = document.querySelector('.col-md-6 .input-group .btn-primary');
+  if (searchButton) {
+    searchButton.addEventListener('click', function() {
+      const input = this.previousElementSibling;
+      currentFilters.search = input.value;
+      applyFilters();
+    });
+  }
+  
+  // Admin Status filter
+  const adminStatusFilter = document.getElementById('adminStatusFilter');
+  if (adminStatusFilter) {
+    adminStatusFilter.addEventListener('change', function() {
+      currentFilters.status = this.value;
+      applyAdminFilters();
+    });
+  }
+  
+  // Admin Search input
+  const adminSearchInput = document.getElementById('adminSearchInput');
+  if (adminSearchInput) {
+    adminSearchInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        currentFilters.search = this.value;
+        applyAdminFilters();
+      }
+    });
+  }
+  
+  // Admin Search button
+  const adminSearchBtn = document.getElementById('adminSearchBtn');
+  if (adminSearchBtn) {
+    adminSearchBtn.addEventListener('click', function() {
+      const input = document.getElementById('adminSearchInput');
+      currentFilters.search = input.value;
+      applyAdminFilters();
+    });
+  }
+}
+
+// Function to reset all filters to default
+function resetFilters() {
+  // Reset filter state
+  currentFilters = {
+    status: "All Statuses",
+    sort: "Sort By: Newest",
+    search: ""
+  };
+  
+  // Reset UI elements
+  const statusFilter = document.querySelector('select[aria-label="Filter by status"]');
+  if (statusFilter) {
+    statusFilter.value = currentFilters.status;
+  }
+  
+  const sortFilter = document.querySelector('select[aria-label="Sort by"]');
+  if (sortFilter) {
+    sortFilter.value = currentFilters.sort;
+  }
+  
+  const searchInput = document.querySelector('.col-md-6 .input-group input');
+  if (searchInput) {
+    searchInput.value = '';
+  }
+  
+  const adminStatusFilter = document.getElementById('adminStatusFilter');
+  if (adminStatusFilter) {
+    adminStatusFilter.value = 'Status';
+  }
+  
+  const adminSearchInput = document.getElementById('adminSearchInput');
+  if (adminSearchInput) {
+    adminSearchInput.value = '';
+  }
+  
+  // Apply reset filters
+  const user = JSON.parse(localStorage.getItem('user')) || { role: 'user' };
+  if (user.role === 'admin') {
+    applyAdminFilters();
+  } else {
+    applyFilters();
+  }
+  
+  // Clear URL parameters
+  window.history.replaceState(null, '', window.location.pathname);
+}
+
+   
+
+</script>
+
+<script src="/js/admin-dashboard.js" type="module"></script>
+<!-- Firebase SDK (already included in your project) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+
+<!-- Auction notification handler -->
+<script src="/js/client-notification.js"></script>
+
+
+</body>
+</html>

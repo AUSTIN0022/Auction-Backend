@@ -1,0 +1,80 @@
+Admin Flow Endpoints
+Authentication
+
+POST /api/auth/admin/login - Admin login
+POST /api/auth/admin/register - Admin Register 
+
+User Management
+
+GET /api/admin/users - List all users
+GET /api/admin/users/:id - Get specific user details
+PUT /api/admin/users/:id/verify - Verify user
+PUT /api/admin/users/:id/approve - Approve or reject user
+GET /api/admin/users/documents - Get verification documents
+
+Auction Management
+
+GET    /api/admin/auctions - List all auctions
+POST   /api/admin/auctions - Create new auction
+GET    /api/admin/auctions/:id - Get specific auction details
+PUT    /api/admin/auctions/:id - Edit auction
+DELETE /api/admin/auctions/:id - Delete auction
+PUT    /api/admin/auctions/:id/publish - Publish auction
+PUT    /api/admin/auctions/:id/finalize - Finalize auction
+PUT    /api/admin/auctions/:id/parameters - Set auction parameters
+
+Reporting & Analytics:
+
+GET /api/admin/reports/financial - Get financial reports
+GET /api/admin/reports/user-activity - Get user activity reports
+GET /api/admin/reports/auction-performance - Get auction performance reports
+
+Bidding Management:
+
+GET /api/admin/bids - View all bids
+GET /api/admin/bids/:id - View specific bid details
+
+
+
+
+User/Bidder Flow Endpoints
+
+Authentication & Registration:
+
+POST /api/auth/register - User registration
+POST /api/auth/login - User login
+POST /api/auth/logout - User logout
+
+User Profile:
+
+GET   /api/users/profile - Get user profile
+PUT   /api/users/profile - Update user profile
+POST  /api/users/documents - Upload verification documents
+
+Auction Interaction:
+
+GET  /api/auctions - Browse all public auctions
+GET  /api/auctions/:id - View auction details
+GET  /api/auctions/participating - Get auctions user is participating in
+POST /api/auctions/:id/register - Register for auction
+POST /api/auctions/:id/emd/pay - Pay EMD (Earnest Money Deposit)
+
+Bidding:
+
+GET  /api/bids/activity - View bid activity
+GET  /api/auctions/:id/bids - Get bids for specific auction
+POST /api/auctions/:id/bids - Place a bid
+GET  /api/bids/:id - Get specific bid details
+
+Payment:
+
+POST  /api/payments/emd - Make EMD payment
+POST  /api/payments/auction/:id - Make final payment for won auction
+GET   /api/payments/history - View payment history
+
+Dashboard:
+
+GET /api/dashboard - Get user dashboard data
+GET /api/dashboard/auctions - Get auction summary for dashboard
+
+

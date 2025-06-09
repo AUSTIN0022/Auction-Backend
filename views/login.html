@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    :root {
+      --bs-primary: #3a86ff;
+      --bs-secondary: #ff006e;
+      --bs-success: #38b000;
+      --bs-warning: #ffbe0b;
+      --bs-danger: #ff5400;
+      --bs-dark: #1a2639;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+    }
+    
+    /* Custom styling for upload area */
+    .document-upload {
+      border: 2px dashed #d9e2ef;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 10px;
+      background: #fbfbff;
+      transition: all 0.3s ease;
+    }
+    
+    .document-upload:hover {
+      border-color: var(--bs-primary);
+      background: #f5f8ff;
+    }
+    
+    /* Card animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in-card {
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    /* Divider with text */
+    .divider {
+      display: flex;
+      align-items: center;
+      color: var(--bs-gray);
+      margin: 1.5rem 0;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .divider::before {
+      margin-right: 1rem;
+    }
+    
+    .divider::after {
+      margin-left: 1rem;
+    }
+
+    /* Alert styles */
+    .alert {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+
+    <!-- Login Form -->
+    <div class="card shadow mb-5 fade-in-card">
+      <div class="card-header py-2 bg-primary text-white d-flex justify-content-between align-items-center">
+        <div><i class="fas fa-sign-in-alt"></i> Login</div>
+      </div>
+      <div class="card-body p-4">
+        <div class="mx-auto" style="max-width: 500px;">
+          <h3 class="text-center mb-4">Access Your Account</h3>
+          
+          <!-- Alert for messages -->
+          <div class="alert" id="alertMessage" role="alert"></div>
+          
+          <form id="loginForm">
+            <div class="mb-3">
+              <label for="loginEmail" class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
+              <input type="email" class="form-control" id="loginEmail" name="email" placeholder="your@email.com" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label"><i class="fas fa-lock"></i> Password</label>
+              <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="remember">
+                <label class="form-check-label text-muted" for="remember">
+                  Remember me
+                </label>
+              </div>
+              <a href="#" class="text-primary text-decoration-none">Forgot Password?</a>
+            </div>
+            
+            <div class="mt-4">
+              <button type="submit" class="btn btn-success w-100" id="loginButton">
+                <i class="fas fa-sign-in-alt"></i> Login
+                <span class="spinner-border spinner-border-sm d-none ms-2" id="loginSpinner" role="status" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+          
+          <div class="divider">Or continue with</div>
+          
+          <div class="d-flex justify-content-center gap-2 mb-4">
+            <button class="btn" style="background: #4267B2; color: white;"><i class="fab fa-facebook-f"></i> Facebook</button>
+            <button class="btn" style="background: #DB4437; color: white;"><i class="fab fa-google"></i> Google</button>
+            <button class="btn" style="background: #333; color: white;"><i class="fab fa-apple"></i> Apple</button>
+          </div>
+          
+          <div class="my-4 text-center">
+            <label class="text-muted">
+              Don't have a Account? <a href="/register" class="text-primary text-decoration-none">Register here</a>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+
+  <script src="/js/admin-dashboard.js" type="module"></script>
+  <!-- Firebase SDK (already included in your project) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const alertMessage = document.getElementById('alertMessage');
+      const loginButton = document.getElementById('loginButton');
+      const loginSpinner = document.getElementById('loginSpinner');
+      
+      
+      function showAlert(message, type) {
+        alertMessage.className = `alert alert-${type}`;
+        alertMessage.textContent = message;
+        alertMessage.style.display = 'block';
+        
+        setTimeout(() => {
+          alertMessage.style.display = 'none';
+        }, 5000);
+      }
+      
+
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+       
+        loginButton.disabled = true;
+        loginSpinner.classList.remove('d-none');
+        
+        const formData = new FormData(loginForm);
+        const formDataObj = Object.fromEntries(formData.entries());
+        
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formDataObj)
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            
+            showAlert('Login successful! Redirecting...', 'success');
+            
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('userId', JSON.stringify(data.userId));
+            
+
+            setTimeout(() => {
+              const role = data.user.role;
+              if (role === 'admin') {
+                window.location.href = '/admin-dashboard';
+              } else if (role === 'user') {
+                window.location.href = '/dashboard';
+              } else {
+                window.location.href = '/';
+              }
+            }, 1000);
+          } else {
+           
+            showAlert(data.message || 'Login failed', 'danger');
+          }
+  
+
+        } catch (error) {
+          showAlert('Network error. Please try again later.', 'danger');
+          console.error('Login error:', error);
+        } finally {
+        
+          loginButton.disabled = false;
+          loginSpinner.classList.add('d-none');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
