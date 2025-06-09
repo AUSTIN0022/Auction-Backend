@@ -22,6 +22,7 @@ const app = express();
 
 app.use(cors({
   origin: [
+    'https://bidbazaar.shop',
     'https://www.bidbazaar.shop',
     'https://api.bidbazaar.shop',
     'https://dev.bidbazaar.shop',
@@ -54,10 +55,10 @@ try {
   process.exit(1);
 }
 
-// import './utils/worker/updateAuctionsStatus.js';
+import './utils/worker/updateAuctionsStatus.js';
 
 // Frontend
-app.use('/', frontendRoutes);
+// app.use('/', frontendRoutes);
 
 
 // Payment
