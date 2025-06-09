@@ -22,6 +22,8 @@ const app = express();
 
 app.use(cors({
   origin: [
+    'https://www.bidbazaar.shop',
+    'https://api.bidbazaar.shop',
     'https://dev.bidbazaar.shop',
     'http://localhost:5173',
     'http://localhost:3000' 
