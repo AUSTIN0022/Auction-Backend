@@ -11,38 +11,52 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function formatPrivateKey(privateKey) {
   if (!privateKey) return null;
   
-  // Handle Railway's format: single line with literal \n
-  if (privateKey.includes('\\n')) {
-    return privateKey.replace(/\\n/g, '\n');
+  // Remove quotes if present
+  let cleanKey = privateKey.trim();
+  if ((cleanKey.startsWith('"') && cleanKey.endsWith('"')) || 
+      (cleanKey.startsWith("'") && cleanKey.endsWith("'"))) {
+    cleanKey = cleanKey.slice(1, -1);
   }
   
-  // Handle single-line format without \n separators
-  if (!privateKey.includes('\n') && privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-    // Split the key into proper lines
-    let formatted = privateKey;
+  // Handle Railway's format: single line with literal \n
+  if (cleanKey.includes('\\n')) {
+    cleanKey = cleanKey.replace(/\\n/g, '\n');
+  }
+  
+  // If it already has proper newlines, return as-is
+  if (cleanKey.includes('\n') && cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    return cleanKey;
+  }
+  
+  // Handle single-line format without proper newlines
+  if (!cleanKey.includes('\n') && cleanKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    // Extract the key content between BEGIN and END markers
+    const beginMarker = '-----BEGIN PRIVATE KEY-----';
+    const endMarker = '-----END PRIVATE KEY-----';
     
-    // Add newline after BEGIN marker
-    formatted = formatted.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n');
+    const beginIndex = cleanKey.indexOf(beginMarker);
+    const endIndex = cleanKey.indexOf(endMarker);
     
-    // Add newline before END marker
-    formatted = formatted.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+    if (beginIndex === -1 || endIndex === -1) {
+      console.error('❌ Invalid private key format: missing BEGIN or END markers');
+      return null;
+    }
     
-    // Split the middle content into 64-character lines
-    const beginIndex = formatted.indexOf('\n') + 1;
-    const endIndex = formatted.lastIndexOf('\n');
-    const middleContent = formatted.substring(beginIndex, endIndex);
+    // Extract the middle content (the actual key data)
+    const middleContent = cleanKey.substring(beginIndex + beginMarker.length, endIndex).trim();
     
-    // Split into 64-character chunks
+    // Split into 64-character lines (standard PEM format)
     const chunks = middleContent.match(/.{1,64}/g) || [];
     const formattedMiddle = chunks.join('\n');
     
-    formatted = '-----BEGIN PRIVATE KEY-----\n' + formattedMiddle + '\n-----END PRIVATE KEY-----';
+    // Reconstruct the properly formatted key
+    const formatted = `${beginMarker}\n${formattedMiddle}\n${endMarker}`;
     
     return formatted;
   }
   
-  // Return as-is if already properly formatted
-  return privateKey;
+  // Return as-is if already properly formatted or unrecognized format
+  return cleanKey;
 }
 
 // Firebase Admin SDK service account configuration
@@ -50,8 +64,8 @@ const serviceAccountConfig = {
   type: "service_account",
   project_id: process.env.PROJECT_ID,
   private_key_id: process.env.PRIVATE_KEY_ID,
-  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC4iDqjUWBtlxt2\neZQwkvkiS7SFtYdVM+JdrKBmL4mYbPn9ifLMqpwE3jqU7XJgu9rNHzgDJVv5VG6s\nD0wNdHNm6G9TCiIPkZwKHGhXhw8MaKEo/rS1oJkvuqzEXmdHvNjjg5xzKqnb0/r1\n8gymznBP6bbNjQ/2/NP4qRIwh2ANGmvz2qg6e6vfsnD5UD9UXGCGsOdRpevyozsI\ng6aeGk037QRWlHQ5e3zPGW92fHQaIpILMDtutP4YIvUVhL+fhb82aHqtQDKGKQ37\neWKjMK7RoqyJrl/joNX91WDTtxlmgmar9zez4atCKgixVSPFIL3r08nu+QfK/Uvn\npZri64F/AgMBAAECggEAQfNaNa1rT6+OPqEEH/ofNS0mZxUyOXbSI9WC/BJoVEQ6\ncm1fi9s76Jd+C2TzmHP7Jo1OSP2MqgcNiMvsy/A/IFvZEa4Q70yEnq55cjLQY4hv\ndMXXUwSDSyYmAgaVVfO99k4+14A7ddgEnOr1r5YfWMg4L62HM6g3n+rZF+QCJZwc\n9C8HxNHlD2sltr5gw13nuCs0tZCTOWjHX1QLeEaef2251X0bh1UllX140TOE/Zpv\nEDNI8/oGEx12RY1vCPZ7TTDtAW6ak47Lxf0GrSdqfUawtOW/RaUMNGVwpShAOAb3\ngV6fUP122/hOhCS6pvJbR/zQzhWHXNEibGEWvytlTQKBgQDbSDf8zSPCDwQ2slFm\nDJtxds289ge+1jWE/Q+aIrdtg9hPlc5JqpB8MnRWoBvCnyyGopPATDwEDPzqVth3\n3FGD/anqXYujoLm9MUYNES5thTDKA4iUi3+vyeT7KnWkFpHAaHajNLHsbxiGMcat\nBQINM6YueaPAZj6J4Uu6D6DQWwKBgQDXbmnBAmZ9RlSljZsHMAo3Xc5E75SddQvV\nOdQqmcI/oIlEnikVv7TBAVbairrWyveRQ0LDYHoO5rsGgmj4E1LgDjK9CBfMpwtT\n0dkXehrI/mTpWqXo8swO2Mi6OnUXYTT1oZa/tL0gsHwxwB7sZqCyNopWNu0zppoT\nSWS8R3pcrQKBgFDhkW0YiWDxwv8dxLJcYhV22aoiIXc9cZ4s7U1QEtI9OFMakW1Q\nkVyOC6VMBxFBPt4mJ1NdiyF/XOZexBdp11NVBBBjErd2+CuVeh4lwTc6UmWg6gbI\ncX94e5I89glhHb+XiHLoY9wumiAdSgfVeg0+iMRJr6Gu1NBsnk7xpsJTAoGAerGS\nn29Libudh/A/Q/ezSdcuHArK/GZmB9l4oY6SmARJSYA+a/mT63xkx/DM+nn8R4ok\nIvv2aDg2ej2ZpPf0clEDyq8qRs84X1ObrYhIawKf3FtZNHPbjfUfVRjoCRm+vMp7\n/dDlChIZmYgO1JqamQUBApsjuw/+nk9lhOm8ob0CgYBgfrV+f/ZipDOb9/x0CglT\nla2F4yQq17DfwKXSqBFxu7XTyrpqeZ7foCPweHpt9InRMAzpwViJ1SFPsPhIh+Rh\nuFy8cEUwHyq+509a442DtT13TUxjKcFvCusc555RuE/hvy7sBZ6PeebE8khKPS5e\nQPOWl8r0QFh8k0JEUGcPZg==\n-----END PRIVATE KEY-----\n", // Fix newline formatting
-  client_email: "firebase-adminsdk-fbsvc@auction-3b256.iam.gserviceaccount.com",
+  private_key: formatPrivateKey(process.env.PRIVATE_KEY), // Use env variable, not hardcoded
+  client_email: process.env.CLIENT_EMAIL,
   client_id: process.env.CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
@@ -63,6 +77,7 @@ const serviceAccountConfig = {
 const requiredEnvVars = [
   'PROJECT_ID',
   'PRIVATE_KEY_ID',
+  'PRIVATE_KEY', // Added this
   'CLIENT_EMAIL',
   'CLIENT_ID',
   'CLIENT_X509_CERT_URL'
@@ -77,6 +92,11 @@ if (missingVars.length > 0) {
 }
 
 // Validate private key format
+const privateKey = formatPrivateKey(process.env.PRIVATE_KEY);
+if (!privateKey || !privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+  console.error('❌ Invalid private key format. Make sure PRIVATE_KEY environment variable contains a valid PEM key.');
+  process.exit(1);
+}
 
 // Create the service account key file
 const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
@@ -92,6 +112,11 @@ try {
   console.log('✅ Service account key file validated successfully');
   console.log(`📝 Project ID: ${serviceAccountConfig.project_id}`);
   console.log(`📧 Client Email: ${serviceAccountConfig.client_email}`);
+  
+  // Log private key format for debugging (first and last few characters only)
+  if (privateKey) {
+    console.log(`🔑 Private key format: ${privateKey.substring(0, 30)}...${privateKey.substring(privateKey.length - 30)}`);
+  }
   
 } catch (error) {
   console.error('❌ Failed to generate service account key:', error.message);
