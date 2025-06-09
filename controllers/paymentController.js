@@ -2,7 +2,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import crypto from 'crypto';
+import { createHmac } from 'crypto';
 import Razorpay from 'razorpay';
 import { Auction, Payment, User } from '../model/DBModel.js';
 
@@ -176,7 +176,7 @@ export const verifyPayment = async (req, res) => {
     }
 
     // Verify the signature
-    const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_API_SECRET);
+    const shasum = createHmac('sha256', process.env.RAZORPAY_API_SECRET);
     shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = shasum.digest('hex');
 
@@ -276,7 +276,7 @@ export const paymentWebhook = async (req, res) => {
     const signature = req.headers['x-razorpay-signature'];
     
     // Verify webhook signature
-    const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET);
+    const shasum = createHmac('sha256', process.env.RAZORPAY_API_SECRET);
     shasum.update(JSON.stringify(req.body));
     const digest = shasum.digest('hex');
     
