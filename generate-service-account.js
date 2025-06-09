@@ -59,6 +59,11 @@ function formatPrivateKey(privateKey) {
   return cleanKey;
 }
 
+
+console.log(`Before: ${process.env.PRIVATE_KEY}`);
+
+console.log(`After ${formatPrivateKey(process.env.PRIVATE_KEY)}`)
+
 // Firebase Admin SDK service account configuration
 const serviceAccountConfig = {
   type: "service_account",
