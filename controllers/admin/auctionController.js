@@ -6,6 +6,7 @@ const notificationService = createNotificationService();
    
 
 export const getAuctionsCategories = async (req, res) => {
+    console.log('[Admin] In Auction Categories:');
     try {
         const categories = await Category.find({}).select({ name: 1, description: 1 });
         
@@ -27,8 +28,7 @@ export const getAuctionsCategories = async (req, res) => {
 }
 export const createAuction = async (req, res) => {
     let { title, description, basePrice, startDate, endDate, registrationDeadline, emdAmount, status, categorie, createdBy,} = req.body;
-    console.log("Request in backend controller");
-    console.log(`creadeBy: ${createdBy} Typeof: ${typeof createdBy}`);
+    console.log('[Admin] In Create Auction:');
     
         if (typeof createdBy === 'string') {
             createdBy = createdBy.replace(/^"|"$/g, '');
@@ -174,6 +174,7 @@ export const createAuction = async (req, res) => {
     }
 }
 export const getAllAuctions = async (req, res) => {
+    console.log('[Admin] In getAllAuctions:');
     try {
         const auctions = await Auction.find({ isDeleted: false }).sort({createdAt: -1});
         if(!auctions){
@@ -198,6 +199,7 @@ export const getAllAuctions = async (req, res) => {
 }
 
 export const getAuctionById = async (req, res) => {
+    console.log('[Admin] In getAuctionById:');
     const auctionId =  req.params.id;
     if(!auctionId){
         return res.status(400).json({
@@ -242,7 +244,7 @@ export const getAuctionById = async (req, res) => {
 
 export const updateAuctions = async (req, res) => {
     let {auctionId, title, description, basePrice, startDate, endDate, registrationDeadline, emdAmount, status, categorie,existingImages, createdBy,} = req.body;
-    console.log("Request in backend controller");
+    console.log('[Admin] In Update Auctions:');
     try{
         let existingImagesArray = [];
         if (existingImages) {
@@ -391,6 +393,7 @@ export const updateAuctions = async (req, res) => {
 
 export const deleteAuctions = async (req, res) => {
     const  auctionId  = req.params.id;
+    console.log('[Admin] In Delete Auction:');
 
     try{    
         if(!auctionId){

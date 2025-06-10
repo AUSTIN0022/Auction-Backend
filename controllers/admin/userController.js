@@ -5,6 +5,7 @@ import createNotificationService from '../../utils/noticationService.js';
 const notificationService = createNotificationService();
 
 export const getAllUsers = async (req, res) => {
+    console.log('[Admin] In getAllUsers:');
     try {
         const result = await User.aggregate([
             {
@@ -70,6 +71,7 @@ export const getAllUsers = async (req, res) => {
 };
 
 export const getUserById = async (req, res) => {
+    console.log('[Admin] In getUserById:');
     const userId = req.params.id;
 
     try {
@@ -90,6 +92,7 @@ export const getUserById = async (req, res) => {
 };
 
 export const verifyUser = async (req, res) => {
+    console.log('[Admin] In verifyUser:');
     const userId = req.params.id;
 
     try {
@@ -118,6 +121,7 @@ export const verifyUser = async (req, res) => {
 
 
 export const rejectUser = async (req, res) => {
+    console.log('[Admin] In rejectUser:');
     const userId = req.params.id;
 
     try {
@@ -145,6 +149,7 @@ export const rejectUser = async (req, res) => {
 };
 
 export const getVerificationDocuments = async (req, res) => {
+    console.log('[Admin] In getVerificationDocuments:');
     const userId = req.params.id;
 
     try {

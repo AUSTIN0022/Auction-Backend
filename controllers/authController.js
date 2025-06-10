@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../model/DBModel.js';
 
 export const register = async (req, res) => {
+    console.log('In Register:');
   const { name, email, password, matchPassword, mobile } = req.body;
   const idProof = req.file?.path || null;
 
@@ -60,6 +61,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+    console.log('In Login:');
     const { email, password } = req.body;
   
     if (!email || !password) {

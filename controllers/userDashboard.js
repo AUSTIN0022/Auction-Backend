@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Auction, Bid, Payment, User } from '../model/DBModel.js';
 
 export const getUserDashboard = async (req, res) => {
+    console.log('[User] In getUserDashboard');
   try {
     const userId = req.user._id;
     

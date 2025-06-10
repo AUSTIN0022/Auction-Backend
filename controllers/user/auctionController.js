@@ -6,6 +6,7 @@ const notificationService = createNotificationService();
 
 
 export const browseAuctions = async (req, res) => {
+    console.log(`In browse Auctions`);
     try {
             const auctions = await Auction.find({ isDeleted: false }).sort({createdAt: -1});
             if(!auctions){
@@ -30,8 +31,10 @@ export const browseAuctions = async (req, res) => {
 }
 
 export const viewAuctionDetails = async (req, res) => {
+    console.log(`In view Auction Details`);
+    
     const auctionId =  req.params.id;
-    console.log("Request in User backend contoller")
+    
     if(!auctionId){
         return res.status(400).json({
             success: false,

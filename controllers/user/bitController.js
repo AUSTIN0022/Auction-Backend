@@ -7,6 +7,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const notificationService = createNotificationService();
 
 export const placeBid = async (req, res) => {
+    console.log(`[User] In Place Bid`);
     const { bidAmount } = req.body;
     const  auctionId  = req.params.id;
     
@@ -110,6 +111,7 @@ export const placeBid = async (req, res) => {
 };
 
 export const getBidForAuction = async (req, res) => {
+    console.log(`[User] In getBid For Auction`);
     const { auctionId } = req.params;
     
     try {
@@ -153,6 +155,7 @@ export const getBidForAuction = async (req, res) => {
 };
 
 export const getUserBids = async (req, res) => {
+    console.log(`[User] In getUserBids`);
     const { userId } = req.params;
     
     try {

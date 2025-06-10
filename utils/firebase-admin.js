@@ -18,9 +18,6 @@ const serviceAccountConfig = {
   universe_domain: "googleapis.com"
 };
 
-
-console.log(`\n\n\nServiceAcccountConfig: \n\n${JSON.stringify(serviceAccountConfig)}\n\n\n`);
-
 // const serviceAccount = require('../serviceAccountKey.json');
 
 // console.log(`\n\n\nServiceAcccount: \n\n${JSON.stringify(serviceAccount)}\n\n\n`);
