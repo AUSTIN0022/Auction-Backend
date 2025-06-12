@@ -5,15 +5,14 @@ importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-comp
 
 // Firebase configuration - Update with your actual Firebase config
 const firebaseConfig = {
-    apiKey: "AIzaSyAGH_yE_Fo7Yyj99cBUBB6Hol5gk_jZ40g",
-    authDomain: "auction-3b256.firebaseapp.com",
-    projectId: "auction-3b256",
-    storageBucket: "auction-3b256.firebasestorage.app",
-    messagingSenderId: "165002779847",
-    appId: "1:165002779847:web:e0dc73b92f92a70517b2e2",
-    measurementId: "G-KB9XW55DXN"
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
-
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
