@@ -1,6 +1,6 @@
 // controller/userDashboard.js
 import mongoose from 'mongoose';
-import { Auction, Bid, Payment, User } from '../model/DBModel.js';
+import { Auction, Bid, Notification, Payment, User } from '../model/DBModel.js';
 
 export const getUserDashboard = async (req, res) => {
     console.log('[User] In getUserDashboard');
@@ -327,3 +327,18 @@ export const getUserDashboard = async (req, res) => {
     });
   }
 };
+
+export const getNotification = async (req, res) => {
+    const userId = req.user._id;
+
+    try{
+        const notifications = await Notification.find({receiver: { $in: [userId, 'All']}});
+
+        return res.json({ notifications });
+    } catch(error) {
+        console.log(`ERROR: ${error.message}`);
+        return res.status(500).json({
+            message: `Error Fetching your notification`
+        });
+    }
+}

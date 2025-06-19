@@ -7,7 +7,7 @@ import { NotificationToken } from './model/DBModel.js';
 import adminAuctionRoutes from './routes/admin/auctionRoutes.js';
 import adminUserRoutes from './routes/admin/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-import frontendRoutes from './routes/frontendRoutes.js';
+import notificationsRoutes from './routes/notificationsRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import userAuctionRoutes from './routes/user/auctionRoutes.js';
 import userBidRoutes from './routes/user/bidRoutes.js';
@@ -63,6 +63,9 @@ import './utils/worker/updateAuctionsStatus.js';
 
 // Payment
 app.use('/api/payments', paymentRoutes);
+
+// Notifications
+app.use('/api/notifications', notificationsRoutes);
 
 // Backend
 // Admin

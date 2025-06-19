@@ -1,9 +1,8 @@
 import express from 'express';
 import {
     browseAuctions,
+    closeAuction,
     getParticipatingAuctions,
-    payEmd,
-    registerForAuction,
     viewAuctionDetails
 } from '../../controllers/user/auctionController.js';
 import { authorizeRole } from '../../middleware/authorizeRole.js';
@@ -16,8 +15,8 @@ router.get('/:id',isLoggedIn, viewAuctionDetails);
 
 router.use(isLoggedIn, authorizeRole('user'));
 
+router.post('/close', closeAuction);
+
 router.get('/participating', getParticipatingAuctions);
-router.post('/:id/register', registerForAuction);
-router.post('/:id/emd/pay', payEmd);
 
 export default router;

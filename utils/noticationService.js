@@ -80,8 +80,6 @@ function createNotificationService(config = {}) {
             const validTokens = [];
             const invalidTokens = [];
             
-            console.log(`All Tokens From Database ${JSON.stringify(allTokens)}`);
-
             // Collect valid tokens
             const tokens = [];
             const tokenIdMap = {}; // Map token => tokenDoc._id

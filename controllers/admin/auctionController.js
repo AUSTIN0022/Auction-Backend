@@ -27,7 +27,7 @@ export const getAuctionsCategories = async (req, res) => {
     }
 }
 export const createAuction = async (req, res) => {
-    let { title, description, basePrice, startDate, endDate, registrationDeadline, emdAmount, status, categorie, createdBy,} = req.body;
+    let { title, description, basePrice, bidInterval,  startDate, endDate, registrationDeadline, emdAmount, status, categorie, createdBy,} = req.body;
     console.log('[Admin] In Create Auction:');
     
         if (typeof createdBy === 'string') {
@@ -119,6 +119,7 @@ export const createAuction = async (req, res) => {
             images, 
             basePrice: Number(basePrice),
             startDate: parsedStartDate,
+            bidInterval,
             endDate: parsedEndDate,
             registrationDeadline: parsedRegistrationDeadline,
             emdAmount: Number(emdAmount),
@@ -126,7 +127,7 @@ export const createAuction = async (req, res) => {
             categorie, 
             createdBy 
         })
-    
+
         await newAuction.save();
 
         await notificationService.sendNotification(
@@ -243,8 +244,9 @@ export const getAuctionById = async (req, res) => {
 }
 
 export const updateAuctions = async (req, res) => {
-    let {auctionId, title, description, basePrice, startDate, endDate, registrationDeadline, emdAmount, status, categorie,existingImages, createdBy,} = req.body;
+    let {auctionId, title, description, basePrice, bidInterval, startDate, endDate, registrationDeadline, emdAmount, status, categorie,existingImages, createdBy,} = req.body;
     console.log('[Admin] In Update Auctions:');
+    console.log(`createBy: ${createdBy}`);
     try{
         let existingImagesArray = [];
         if (existingImages) {
@@ -338,6 +340,7 @@ export const updateAuctions = async (req, res) => {
             description: description.trim(),
             images: combinedImages, 
             basePrice: Number(basePrice),
+            bidInterval: Number(bidInterval),
             startDate: parsedStartDate,
             endDate: parsedEndDate,
             registrationDeadline: parsedRegistrationDeadline,

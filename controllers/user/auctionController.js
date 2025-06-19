@@ -76,14 +76,44 @@ export const viewAuctionDetails = async (req, res) => {
     }
       
 }
+
+export const closeAuction = async (req, res) => {
+    const { auctionId, userId} = req.body;
+    console.log(`In closeAuction: \n Body: ${JSON.stringify(req.body)}`);
+
+    try {
+        if(!auctionId && !userId) return res.json({ message: "Please provide the Acution ID & user ID"});
+
+        const auction = await Auction.findByIdAndUpdate(auctionId, {winner: userId, status: "completed"},{new: true})
+
+        console.log(`Winner: ${auction.winner}`);
+
+        await notificationService.sendNotification(
+            [auction.winner],
+            `You Won the Auction: ${auction.title}`,
+            'auction_won',
+        );
+    
+        await notificationService.sendNotification(
+            auction.bidders,
+            `Auction Closed: ${auction.title}`,
+            'auction_ended',
+        );
+
+        return res.json({
+            message: `Auction Completed`
+        });
+    } catch(err) {
+        console.log(`Error: ${err.message}`);
+        return res.status(500).json({
+            message: "Error closing the Auction"
+        });
+    }
+
+}
+
 export const getParticipatingAuctions = async (req, res) => {
     
 }
 
-export const registerForAuction = async (req, res) => {
-    
-}
 
-export const payEmd  = async (req, res) => {
-
-}

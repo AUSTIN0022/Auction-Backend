@@ -39,12 +39,13 @@ const AuctionSchema = new Schema({
     description: { type: String, required: true },
     images: [{ type: String, required: true }],
     basePrice: { type: Number, required: true },
+    bidInterval: {type: Number, required: true},
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     registrationDeadline: { type: Date, required: true },
     emdAmount: { type: Number, required: true },
     status: { type: String, enum: ['draft', 'pending', 'active', 'completed', 'cancelled'], default: 'draft' },
-    winner: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+    winner: { type: mongoose.Schema.Types.ObjectId, ref: 'users', default: null },
     categorie: { type: mongoose.Schema.Types.ObjectId, ref: 'categories' },
     bidders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     bidLog: [{ type: mongoose.Schema.Types.ObjectId, ref: 'bids' }],
@@ -149,5 +150,6 @@ const Notification = mongoose.model('notifications', NotificationSchema);
 
 
 export {
-    Auction, Bid, Category, Log, Payment, User, NotificationToken, Notification
+    Auction, Bid, Category, Log, Notification, NotificationToken, Payment, User
 };
+
