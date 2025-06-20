@@ -20,6 +20,20 @@ function createNotificationService(config = {}) {
     }
   }
 
+  function getLinkForType(type, options) {
+    switch (type) {
+        case 'new_user':
+        return `/user-detail/${options.userId}`;
+        case 'auction_created':
+        return `/auctions/${options.auctionId}`;
+        case 'auction_won':
+        return `/auctions/${options.auctionId}`;
+        default:
+        return '/dashboard'; // fallback
+    }
+}
+
+
   async function sendNotification(receiver, message, type, options = {}) {
     try {
         log(`Sending ${type} notification to ${receiver}: ${message}`);
@@ -30,10 +44,10 @@ function createNotificationService(config = {}) {
                     n_title: getDefaultTitleForType(type) || "Auction Notification",
                     n_body: message,
                     type : type,
-                    auctionId: options.auctionId?.toString() || ''
+                    link: getLinkForType(type, options)
                 }
             };
-
+           
 
         // Initialize results tracking
         const results = {
@@ -183,7 +197,7 @@ function createNotificationService(config = {}) {
                         n_title: payload.data.n_title, // data-only payload
                         n_body: payload.data.n_body,
                         type: payload.data.type,
-                        auctionId: payload.data.auctionId || ''
+                        link: getLinkForType(type, options)
                     }
                 });
 
@@ -242,7 +256,7 @@ function createNotificationService(config = {}) {
                         n_title: payload.data.n_title,
                         n_body: payload.data.n_body,
                         type: payload.data.type,
-                        auctionId: payload.data.auctionId || ''
+                        link: getLinkForType(type, options)
                     }
                 });
 

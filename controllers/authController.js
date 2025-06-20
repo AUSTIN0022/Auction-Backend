@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/DBModel.js';
+import createNotificationService from '../utils/noticationService.js';
+
+const notificationService = createNotificationService();
 
 export const register = async (req, res) => {
     console.log('In Register:');
@@ -49,12 +52,24 @@ export const register = async (req, res) => {
     }, process.env.JWT_SECRET, 
     { expiresIn: '24h' });
 
+    
+
     res.status(201).json({
       success: true,
       message: `registered successfully.`,
       token,
       user: { id: newUser._id, name: newUser.name, email: newUser.email }
     });
+
+    await notificationService.sendNotification(
+            "admin",
+            `New User`,
+            'new_user',
+            { 
+                userId: newUser._id,
+            }
+        );
+
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
