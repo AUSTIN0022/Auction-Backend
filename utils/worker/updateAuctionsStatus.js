@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { Auction } from '../../model/DBModel.js';
 
-cron.schedule('*/1 * * * *', async () => {
+cron.schedule('*/10 * * * *', async () => {
   try {
     const now = new Date();
 
