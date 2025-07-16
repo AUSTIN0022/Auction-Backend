@@ -57,7 +57,7 @@ try {
 
 import './utils/worker/updateAuctionsStatus.js';
 
-// Frontend
+// Old Frontend
 // app.use('/', frontendRoutes);
 
 
