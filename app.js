@@ -55,7 +55,7 @@ try {
   process.exit(1);
 }
 
-// import './utils/worker/updateAuctionsStatus.js';
+import './utils/worker/updateAuctionsStatus.js';
 
 // Old Frontend
 // app.use('/', frontendRoutes);
