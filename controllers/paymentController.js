@@ -12,7 +12,6 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_API_SECRET
 });
 
-
 console.log('=== ENVIRONMENT DEBUG ===');
 console.log('RAZORPAY_API_ID:', process.env.RAZORPAY_API_ID);
 console.log('RAZORPAY_API_SECRET:', process.env.RAZORPAY_API_SECRET);
@@ -48,7 +47,7 @@ export const createPayment = async (req, res) => {
     // Ensure amount is valid (Razorpay expects amount in paise)
     const amountInPaise = Math.round(amount * 100);
     
-    // Get user details for prefill
+    // Get user de~tails for prefill
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -100,7 +99,7 @@ export const createPayment = async (req, res) => {
         });
       }
     }
-    console.log(`UserId: ${userId}`);
+
     const shortId = userId.toString().slice(0, 8); 
     console.log(`shortID: ${shortId}`);
     // Create order options
