@@ -12,9 +12,14 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_API_SECRET
 });
 
-console.log('Razorpay Key ID:', process.env.RAZORPAY_API_ID);
-console.log('Razorpay Key Secret:', process.env.RAZORPAY_API_SECRET ? 'Present' : 'Missing');
-console.log('Key Secret length:', process.env.RAZORPAY_API_SECRET?.length);
+console.log('=== ENVIRONMENT DEBUG ===');
+console.log('RAZORPAY_API_ID:', process.env.RAZORPAY_API_ID);
+console.log('RAZORPAY_API_SECRET:', process.env.RAZORPAY_API_SECRET);
+console.log('Keys present:', {
+    id: !!process.env.RAZORPAY_API_ID,
+    secret: !!process.env.RAZORPAY_API_SECRET
+});
+console.log('========================');
 
 export const createPayment = async (req, res) => {
     console.log(`Backend createPayemt: ${JSON.stringify(req.body)}`);
