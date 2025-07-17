@@ -12,6 +12,7 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_API_SECRET
 });
 
+
 console.log('=== ENVIRONMENT DEBUG ===');
 console.log('RAZORPAY_API_ID:', process.env.RAZORPAY_API_ID);
 console.log('RAZORPAY_API_SECRET:', process.env.RAZORPAY_API_SECRET);
